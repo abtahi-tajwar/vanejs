@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Litebind Example</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+  </style>
+  <script src="engine.js"></script>
+</head>
+
+<body>
+
+  <h1 data-bind="user.name">Page</h1>
+  <input id="inpt" />
+  <p data-bind="user.bio">Bio</p>
+
+  <div data-repeat="user.skills as skill">
+    <template>
+      <li data-ritem="{skill}.label"></li>
+    </template>
+    <ul></ul>
+  </div>
+  <script src="main.js"></script>
+</body>
