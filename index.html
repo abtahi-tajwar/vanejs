@@ -18,11 +18,15 @@
 
   <h1 data-bind="user.name">Page</h1>
   <input id="inpt" />
+  <div>
+    <button id="minus">-</button>
+    <button id="plus">+</button>
+  </div>
   <p data-bind="user.bio">Bio</p>
 
   <div data-repeat="user.skills as skill">
     <template>
-      <li data-ritem="{skill}.label"></li>
+      <li data-ritem="{skill}.label"></li><span data-bind="user.name">Abtahi</span>
     </template>
     <ul></ul>
   </div>

@@ -6,7 +6,7 @@ let templateEngineStates = {}
 /** State functions **/
 function $setState(name, obj) {
   templateEngineStates[name] = obj;
-  updateDOMValues(name, obj)
+  updateDOMValues(name)
 
 }
 
@@ -18,7 +18,7 @@ function $getState(name) {
 function $updateState(name, obj) {
   const updated = obj;
   templateEngineStates[name] = updated;
-  updateDOMValues(name, updated)
+  updateDOMValues(name)
   return updated
 }
 
@@ -29,12 +29,12 @@ function $deleteState(name) {
 
 const updateDOMValues = (stateName, state) => {
   const elements = document.querySelectorAll(`[data-bind^="${stateName}."]`);
-  populateTextValues(stateName, elements);
+  populateTextValues(elements);
   const repeatElements = document.querySelectorAll(`[data-repeat^="${stateName}."]`)
   populateRepeatValues(stateName, repeatElements);
 }
 
-const populateTextValues = (state, elements) => {
+const populateTextValues = (elements) => {
   elements.forEach(el => {
     let key;
     key = el.dataset.bind;
@@ -52,28 +52,29 @@ function populateRepeatValues(state, elements) {
 
     const template = document.createElement("template")
     template.content.appendChild(el.querySelector("template")?.content.cloneNode(true));
+    console.log("Template", template);
+    const bindNodes = template.content.querySelectorAll("[data-bind]")
+    console.log("Bind nodes", bindNodes);
+    populateTextValues(bindNodes);
 
     el.innerHTML = "";
     if (!template) throw new Error("Please define a <template></template> inside your data repeat")
     const arrVal = getValueByPath(templateEngineStates, path) ?? [];
     for (let i = 0; i < arrVal.length; i++) {
-      console.log("Original template", template);
       const itemDOM = template.content.cloneNode(true);
       const rItems = itemDOM.querySelectorAll(`[data-ritem^="{${pointer}}."]`)
-      console.log("rItems, itemDOM", rItems, itemDOM)
-      // const bindNodes = template.querySelectorAll("[data-bind]")
 
       rItems.forEach((item) => {
         let key = item.dataset.ritem;
         const absolutepath = key.replace(`{${pointer}}`, `${path}[${i}]`)
-        console.log("Absolute path", absolutepath);
         const value = templateEngineStates ? getValueByPath(templateEngineStates, absolutepath) : null;
-        console.log("Repeat key value", value)
         item.innerHTML = value;
       })
       el.appendChild(itemDOM);
 
     }
+    template.style.display = "none";
+    el.appendChild(template);
   })
 }
 
