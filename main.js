@@ -4,8 +4,8 @@ window.onload = function() {
     name: "Abtahi",
     bio: "My abtahi name",
     skills: [
-      { label: "Web Dev" },
-      { label: "Chorom dev" }
+      { label: "Web Dev", tags: ["html", "css"] },
+      { label: "Chorom dev", tags: ["react", "svelte"] }
     ],
     education: [
       { label: "Niagara University" },
@@ -22,10 +22,15 @@ window.onload = function() {
   // ➕ Add a new skill
   document.getElementById("plus").addEventListener("click", () => {
     const state = $getState("user");
-    const newSkills = [...state.skills, { label: `Skill ${state.skills.length + 1}` }];
+    const newSkills = [
+      ...state.skills,
+      {
+        label: `Skill ${state.skills.length + 1}`, tags: ["wakthu1", "wakthu2"]
+      }
+    ];
     $updateState("user", {
       ...state,
-      skills: newSkills
+      skills: newSkills,
     });
   });
 

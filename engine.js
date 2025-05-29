@@ -31,7 +31,6 @@ const updateDOMValues = (stateName, state) => {
   const elements = document.querySelectorAll(`[data-bind^="${stateName}."]`);
   populateTextValues(elements);
   const repeatElements = document.querySelectorAll(`[data-repeat^="${stateName}."]`)
-  repeatElements.forEach(r => console.log("Root repeat", r))
   populateRepeatValues(stateName, repeatElements);
 }
 
@@ -45,34 +44,37 @@ const populateTextValues = (elements) => {
 }
 
 
-function populateRepeatValues(state, elements, pointerPath = null) {
-  elements.forEach(n => console.log("elements", n))
+function populateRepeatValues(state, elements, parentPointer = null, parentPointerPath = null) {
   elements.forEach(el => {
     const query = el.dataset.repeat.split(" ");
     if (query.length !== 3) throw new Error(`data-repeat format error at ${state}, please write format like data-repeat="state.example in item"`)
-    const [path, _, pointer] = query;
-
+    let [path, _, pointer] = query;
+    if (parentPointer && parentPointerPath && path.includes(`{${parentPointer}}`)) {
+      path = path.replace(`{${parentPointer}}`, `${parentPointerPath}`)
+    }
     const template = document.createElement("template")
-    console.log("Which template", el, el.querySelector("template"));
     template.content.appendChild(Array.from(el.children).find(c => c.tagName === "TEMPLATE")?.content.cloneNode(true));
     const bindNodes = template.content.querySelectorAll("[data-bind]")
     populateTextValues(bindNodes);
 
-    const repeatNodes = template.content.querySelectorAll("[data-repeat]");
-    repeatNodes.forEach(n => console.log("Repeat node", n))
-    populateRepeatValues(state, repeatNodes)
 
     el.innerHTML = "";
     if (!template) throw new Error("Please define a <template></template> inside your data repeat")
     const arrVal = getValueByPath(templateEngineStates, path) ?? [];
+    console.log("Path", arrVal, path);
     for (let i = 0; i < arrVal.length; i++) {
       const itemDOM = template.content.cloneNode(true);
+
+      const repeatNodes = itemDOM.querySelectorAll("[data-repeat]");
+      populateRepeatValues(state, repeatNodes, pointer, `${path}[${i}]`)
+
       itemDOM.querySelectorAll("[data-repeat]").forEach(item => item.removeAttribute('data-repeat'))
-      const rItems = itemDOM.querySelectorAll(`[data-ritem^="{${pointer}}."]`)
+      const rItems = itemDOM.querySelectorAll(`[data-ritem^="{${pointer}}"]`)
 
       rItems.forEach((item) => {
         let key = item.dataset.ritem;
         const absolutepath = key.replace(`{${pointer}}`, `${path}[${i}]`)
+        console.log("Absolute path", absolutepath);
         const value = templateEngineStates ? getValueByPath(templateEngineStates, absolutepath) : null;
         item.innerHTML = value;
       })
