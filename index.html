@@ -27,6 +27,11 @@
   <div data-repeat="user.skills as skill">
     <template>
       <li data-ritem="{skill}.label"></li><span data-bind="user.name">Abtahi</span>
+      <div data-repeat="user.education as ed">
+        <template>
+          <span data-ritem="{ed}.label">University</span>
+        </template>
+      </div>
     </template>
     <ul></ul>
   </div>

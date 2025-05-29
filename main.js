@@ -6,6 +6,10 @@ window.onload = function() {
     skills: [
       { label: "Web Dev" },
       { label: "Chorom dev" }
+    ],
+    education: [
+      { label: "Niagara University" },
+      { label: "AIUB" }
     ]
   })
   document.getElementById("inpt").addEventListener("input", (e) => {
