@@ -1,0 +1,17 @@
+{
+  "name": "vanejs-docs",
+  "version": "1.0.0",
+  "description": "Documentation for VaneJS - A Reactive JavaScript Library",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "keywords": ["vanejs", "documentation", "javascript", "reactive"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vitepress": "^1.0.0-rc.44"
+  }
+}

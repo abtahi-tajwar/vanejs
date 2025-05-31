@@ -1,5 +1,6 @@
 window.onload = function() {
   console.log("JS Loaded");
+
   $setState("user", {
     name: "Abtahi",
     bio: "My abtahi name",
@@ -12,9 +13,13 @@ window.onload = function() {
       { label: "AIUB" }
     ]
   })
+  $setState("testname", { label: "something" })
+
+  $setState("appState", "loading");;
+  console.log("Get State appState", $getState("appState"))
   document.getElementById("inpt").addEventListener("input", (e) => {
     console.log("Input", e.target.value)
-    $updateState("user", {
+    $setState("user", {
       ...$getState("user"),
       name: e.target.value
     })
@@ -28,7 +33,7 @@ window.onload = function() {
         label: `Skill ${state.skills.length + 1}`, tags: ["wakthu1", "wakthu2"]
       }
     ];
-    $updateState("user", {
+    $setState("user", {
       ...state,
       skills: newSkills,
     });
@@ -38,9 +43,14 @@ window.onload = function() {
   document.getElementById("minus").addEventListener("click", () => {
     const state = $getState("user");
     const newSkills = state.skills.slice(0, -1); // remove last item
-    $updateState("user", {
+    $setState("user", {
       ...state,
       skills: newSkills
+    });
+  });
+  document.querySelectorAll('input[name="state"]').forEach(input => {
+    input.addEventListener("change", (e) => {
+      $setState("appState", e.target.value);
     });
   });
 };

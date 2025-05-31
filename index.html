@@ -11,36 +11,49 @@
       padding: 2rem;
     }
   </style>
-  <script src="engine.js"></script>
+  <script src="engineV2.js"></script>
 </head>
 
 <body>
 
-  <h1 data-bind="user.name">Page</h1>
+  <h1 data-vn-bind="user.name">Page</h1>
   <input id="inpt" />
   <div>
     <button id="minus">-</button>
     <button id="plus">+</button>
   </div>
-  <p data-bind="user.bio">Bio</p>
 
-  <div data-repeat="user.skills as skill">
-    <template>
-      <li data-ritem="{skill}.label"></li><span data-bind="user.name">Abtahi</span>
-      <div data-repeat="user.education as ed">
-        <template>
-          <span data-ritem="{ed}.label">University</span>
-        </template>
-      </div>
+  <form id="status-form">
+    <label><input type="radio" name="state" value="loading" /> Loading</label><br />
+    <label><input type="radio" name="state" value="loaded" /> Loaded</label><br />
+    <label><input type="radio" name="state" value="error" /> Error</label>
+  </form>
+  <p data-vn-bind="user.bio">Bio</p>
 
-      <div data-repeat="{skill}.tags as tag">
-        <template>
-          <span data-ritem="{tag}"></span>
-        </template>
-      </div>
+  <div data-vn-repeat="user.skills as skill">
+    <li data-vn-ritem="{skill}.label"></li><span data-vn-bind="user.name">Abtahi</span>
+    <div data-vn-repeat="user.education as ed">
+      <span data-vn-ritem="{ed}.label">University</span>
+    </div>
 
-    </template>
-    <ul></ul>
+    <div data-vn-repeat="{skill}.tags as tag">
+      <span data-vn-ritem="{tag}"></span>
+    </div>
+
   </div>
+  <div data-vn-if="{appState} === 'loading'">Single Loading spinner</div>
+  <div data-vn-condition>
+    <template data-vn-if="{appState} === 'loading'">
+      <div>Loading</div>
+    </template>
+    <template data-vn-if="{appState} === 'loaded'">
+      <div>Loaded</div>
+    </template>
+    <template data-vn-if="{appState} === 'error'">
+      <div>Error</div>
+    </template>
+
+  </div>
+
   <script src="main.js"></script>
 </body>
