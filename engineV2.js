@@ -56,7 +56,7 @@ const refactorDOM = () => {
 
   domElements.forEach((domEl, idx) => {
     const attributes = Array.from(domEl.attributes);
-    attributes.forEach(attr => {
+    attributes.forEach((attr, attrIdx) => {
       if (engineAttrList.includes(attr.name)) {
         const randomId = crypto.getRandomValues(new Uint8Array(8))
           .map(b => b.toString(36).padStart(2, '0'))
@@ -65,13 +65,13 @@ const refactorDOM = () => {
 
         // Set the original attribute on cloned node
         domEl.setAttribute(attr.name, attr.value);
-        domEl.setAttribute(makeAttr("target"), randomId)
+        domEl.setAttribute(makeAttr("target"), idx)
 
         // Remove original attribute from live DOM
         // domEl.removeAttribute(attr.name);
 
         // Set a new random ID attribute (e.g., data-vn-abc123)
-        vnElements[idx].setAttribute(makeAttr("id"), randomId);
+        vnElements[idx].setAttribute(makeAttr("id"), idx);
         if (attr.name === EngineAttributes.REPEAT) {
           const level = setNestedLevel(vnElements[idx], EngineAttributes.REPEAT, EngineAttributes.NESTED_LEVEL)
           domEl.setAttribute(EngineAttributes.NESTED_LEVEL, level)
@@ -181,37 +181,49 @@ function renderRepeats(elements, parentPointer = null, parentPointerPath = null,
     }
     const stateValue = getValueByPath(appStates, path);
     if (!Array.isArray(stateValue)) throw new Error("data-repeat state is not a valid array, data-repeat only accepts array")
+    const cacheTarget = el.getAttribute(`${EngineAttributes.TARGET}`)
+    const cacheDOM = getTargetDOM(templateCache, cacheTarget)
+
     if (level === 0) {
-      const cacheTarget = el.getAttribute(`${EngineAttributes.TARGET}`)
-      const cacheDOM = getTargetDOM(templateCache, cacheTarget)
       el.innerHTML = cacheDOM.innerHTML;
       el.querySelectorAll(`[${EngineAttributes.ID}]`).forEach(item => {
         const id = item.getAttribute(EngineAttributes.ID);
         item.setAttribute(EngineAttributes.TARGET, id);
+        item.removeAttribute(EngineAttributes.ID)
       })
     }
-
 
     let resultHTML = ''
     stateValue.forEach((val, idx) => {
       const nestedRepeats = el.querySelectorAll(`[${EngineAttributes.REPEAT}]`)
       if (nestedRepeats.length) renderRepeats(nestedRepeats, pointer, `${path}[${idx}]`, level + 1)
+      const cacheDOMClone = cacheDOM.cloneNode(true)
+
       reRenderDOM(el.children, EngineAttributes.REPEAT);
       const rItems = el.querySelectorAll(`[${EngineAttributes.REPEAT_ITEM}]`);
-      console.log("RITEMS", rItems);
+      let alreadyAddedTargets = [];
+
       rItems.forEach(item => {
         if (!item.getAttribute(EngineAttributes.REPEAT_ITEM).includes(`{${pointer}}`)) return;
+        const target = item.getAttribute(EngineAttributes.TARGET);
+        if (alreadyAddedTargets.includes(target)) {
+          item.parentNode.removeChild(item);
+          return;
+        } else {
+          alreadyAddedTargets.push(target);
+        }
         let key = item.getAttribute(EngineAttributes.REPEAT_ITEM);
         const absolutepath = key.replace(`{${pointer}}`, `${path}[${idx}]`)
         const value = appStates ? getValueByPath(appStates, absolutepath) : null;
-        console.log("RITEM Value", value);
         item.innerText = value;
 
       })
       resultHTML += el.innerHTML
     })
-    console.log("Result html", resultHTML, el);
     el.innerHTML = resultHTML;
+
+
+    console.log("Result html", resultHTML)
 
   })
 }

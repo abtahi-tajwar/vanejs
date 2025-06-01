@@ -10,7 +10,8 @@ window.onload = function() {
     ],
     education: [
       { label: "Niagara University" },
-      { label: "AIUB" }
+      { label: "AIUB" },
+      { label: "IPSC" }
     ]
   })
   $setState("testname", { label: "something" })
