@@ -6,6 +6,8 @@ function makeAttr(name) {
 
 const EngineAttributes = {
   IF: makeAttr('if'),
+  ELSEIF: makeAttr('elseif'),
+  ELSE: makeAttr('else'),
   CONDITION: makeAttr('condition'),
   BIND: makeAttr('bind'),
   REPEAT: makeAttr('repeat'),
@@ -131,28 +133,64 @@ const updateDOMValues = (stateName) => {
   renderRepeats(repeatElements);
 };
 
-const reRenderDOM = (htmlCollection, skip = null) => {
+// const reRenderDOM = (htmlCollection, skip = null) => {
+//   const binds = [];
+//   const conditions = [];
+//   const repeats = [];
+//   for (elem of htmlCollection) {
+//     const attrs = Array.from(elem.attributes);
+//     if (!elem.hasAttribute(skip)) {
+//       if (elem.hasAttribute(EngineAttributes.BIND)) {
+//         binds.push(elem);
+//       } else if (elem.hasAttribute(EngineAttributes.CONDITION)) {
+//         conditions.push(elem)
+//       } else if (elem.hasAttribute(EngineAttributes.REPEAT)) {
+//         repeats.push(elem);
+//       }
+//     }
+//   }
+//
+//   if (conditions.length) renderConditions(conditions);
+//   if (binds.length) renderBinds(binds)
+//   if (repeats.length) renderRepeats(repeats);
+//
+// }
+
+function reRenderDOM(root, skip = null) {
   const binds = [];
   const conditions = [];
   const repeats = [];
-  for (elem of htmlCollection) {
-    const attrs = Array.from(elem.attributes);
-    if (!elem.hasAttribute(skip)) {
-      if (elem.hasAttribute(EngineAttributes.BIND)) {
-        binds.push(elem);
-      } else if (elem.hasAttribute(EngineAttributes.CONDITION)) {
-        conditions.push(elem)
-      } else if (elem.hasAttribute(EngineAttributes.REPEAT)) {
-        repeats.push(elem);
+
+  const walker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_ELEMENT,
+    {
+      acceptNode(node) {
+        if (skip && node.hasAttribute(skip)) {
+          return NodeFilter.FILTER_SKIP;
+        }
+        return NodeFilter.FILTER_ACCEPT;
       }
+    },
+    false
+  );
+
+  let node;
+  while (node = walker.nextNode()) {
+    if (node.hasAttribute(EngineAttributes.BIND)) {
+      binds.push(node);
+    } else if (node.hasAttribute(EngineAttributes.CONDITION)) {
+      conditions.push(node);
+    } else if (node.hasAttribute(EngineAttributes.REPEAT)) {
+      repeats.push(node);
     }
   }
 
   if (conditions.length) renderConditions(conditions);
-  if (binds.length) renderBinds(binds)
+  if (binds.length) renderBinds(binds);
   if (repeats.length) renderRepeats(repeats);
-
 }
+
 
 function renderConditions(elements) {
   // To be implemented
@@ -163,12 +201,51 @@ function renderConditions(elements) {
       const condition = el.getAttribute(EngineAttributes.IF);
       const result = evaluateCondition(condition, appStates);
 
-      console.log("Result", result, alreadyRemoved)
       if (result && alreadyRemoved) {
         reAddConditionItem(domEl)
       } else if (!result && !alreadyRemoved) {
         removeConditionItem(domEl)
       }
+    } else if (el.hasAttribute(EngineAttributes.CONDITION)) {
+      let foundTrue = false;
+
+      Array.from(el.children).forEach(block => {
+        if (block.hasAttribute(EngineAttributes.IF) || block.hasAttribute(EngineAttributes.ELSEIF) || block.hasAttribute(ELSE)) {
+          const condition = el.getAttribute(EngineAttributes.IF);
+          const result = evaluateCondition(condition, appStates);
+          const domEl = document.querySelector(`[${EngineAttributes.TARGET}="${el.getAttribute(EngineAttributes.ID)}"]`)
+          const alreadyRemoved = domEl.hasAttribute(EngineAttributes.CONDITION_REMNANT);
+          if (block.hasAttribute(EngineAttributes.IF)) {
+            if (result && alreadyRemoved) {
+              reAddConditionItem(domEl)
+            } else if (!result && !alreadyRemoved) {
+              removeConditionItem(domEl)
+            }
+          }
+          else if (block.hasAttribute(EngineAttributes.ELSEIF)) {
+            if (!foundTrue) {
+              if (result && alreadyRemoved) {
+                reAddConditionItem(domEl)
+              } else if (!result && !alreadyRemoved) {
+                removeConditionItem(domEl)
+              }
+            }
+            else {
+              if (!alreadyRemoved) {
+                removeConditionItem(domEl)
+              }
+            }
+          }
+          else {
+            if (!foundTrue && alreadyRemoved) {
+              reAddConditionItem(domEl)
+            } else if (foundTrue && !alreadyRemoved) {
+              removeConditionItem(domEl)
+            }
+          }
+
+        }
+      })
     }
   })
 }
@@ -186,7 +263,9 @@ function reAddConditionItem(dom) {
   const cloned = cacheDOM.cloneNode(true);
   cloned.setAttribute(EngineAttributes.TARGET, targetId)
   cloned.removeAttribute(EngineAttributes.ID)
+  reRenderDOM(cloned)
   dom.parentNode.replaceChild(cloned, dom)
+
 }
 
 const renderBinds = (elements) => {
@@ -230,7 +309,8 @@ function renderRepeats(elements, parentPointer = null, parentPointerPath = null,
       if (nestedRepeats.length) renderRepeats(nestedRepeats, pointer, `${path}[${idx}]`, level + 1)
       const cacheDOMClone = cacheDOM.cloneNode(true)
 
-      reRenderDOM(el.children, EngineAttributes.REPEAT);
+      // reRenderDOM(el.children, EngineAttributes.REPEAT);
+      reRenderDOM(el, EngineAttributes.REPEAT);
       const rItems = el.querySelectorAll(`[${EngineAttributes.REPEAT_ITEM}]`);
       let alreadyAddedTargets = [];
 

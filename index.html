@@ -32,6 +32,11 @@
 
   <div data-vn-repeat="user.skills as skill">
     <li data-vn-ritem="{skill}.label"></li><span data-vn-bind="user.name">Abtahi</span>
+    <div>
+      <div style="background-color: red;">
+        <span data-vn-bind="user.name"></span>
+      </div>
+    </div>
     <div data-vn-repeat="user.education as ed">
       <span data-vn-ritem="{ed}.label">University</span>
     </div>
@@ -41,7 +46,11 @@
     </div>
 
   </div>
-  <div data-vn-if="{appState} === 'loading'">Single Loading spinner</div>
+  <div data-vn-if="{appState} === 'loading'">
+    <div>
+      <span data-vn-bind="user.bio"></span>
+    </div>
+  </div>
   <div data-vn-condition>
     <div data-vn-if="{appState} === 'loading'">
       <div>Loading</div>
