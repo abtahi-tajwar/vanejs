@@ -12,7 +12,8 @@ const EngineAttributes = {
   REPEAT_ITEM: makeAttr('ritem'),
   NESTED_LEVEL: makeAttr('nested-level'),
   ID: makeAttr('id'),
-  TARGET: makeAttr('target')
+  TARGET: makeAttr('target'),
+  CONDITION_REMNANT: makeAttr('cond-remnant')
 };
 
 const appStates = new Proxy({}, {
@@ -73,7 +74,7 @@ const refactorDOM = () => {
         // Set a new random ID attribute (e.g., data-vn-abc123)
         vnElements[idx].setAttribute(makeAttr("id"), idx);
         if (attr.name === EngineAttributes.REPEAT) {
-          const level = setNestedLevel(vnElements[idx], EngineAttributes.REPEAT, EngineAttributes.NESTED_LEVEL)
+          const level = setNestedLevel(vnElements[idx], attr.name, EngineAttributes.NESTED_LEVEL)
           domEl.setAttribute(EngineAttributes.NESTED_LEVEL, level)
         }
 
@@ -114,7 +115,6 @@ function unwrapTemplates(root = document.body) {
 }
 
 const updateDOMValues = (stateName) => {
-
   const conditionals = templateCache.querySelectorAll(
     `[${EngineAttributes.IF}], [${EngineAttributes.CONDITION}]`
   );
@@ -154,8 +154,39 @@ const reRenderDOM = (htmlCollection, skip = null) => {
 
 }
 
-function renderConditions() {
+function renderConditions(elements) {
   // To be implemented
+  elements.forEach(el => {
+    if (el.hasAttribute(EngineAttributes.IF) && !el.parentNode.hasAttribute(EngineAttributes.CONDITION)) {
+      const domEl = document.querySelector(`[${EngineAttributes.TARGET}="${el.getAttribute(EngineAttributes.ID)}"]`)
+      const alreadyRemoved = domEl.hasAttribute(EngineAttributes.CONDITION_REMNANT);
+      const condition = el.getAttribute(EngineAttributes.IF);
+      const result = evaluateCondition(condition, appStates);
+
+      console.log("Result", result, alreadyRemoved)
+      if (result && alreadyRemoved) {
+        reAddConditionItem(domEl)
+      } else if (!result && !alreadyRemoved) {
+        removeConditionItem(domEl)
+      }
+    }
+  })
+}
+
+function removeConditionItem(dom) {
+  const remnant = document.createElement("div");
+  remnant.setAttribute(EngineAttributes.CONDITION_REMNANT, null)
+  remnant.setAttribute(EngineAttributes.TARGET, dom.getAttribute(EngineAttributes.TARGET))
+  dom.parentNode.replaceChild(remnant, dom);
+
+}
+function reAddConditionItem(dom) {
+  const targetId = dom.getAttribute(EngineAttributes.TARGET);
+  const cacheDOM = getTargetDOM(templateCache, targetId)
+  const cloned = cacheDOM.cloneNode(true);
+  cloned.setAttribute(EngineAttributes.TARGET, targetId)
+  cloned.removeAttribute(EngineAttributes.ID)
+  dom.parentNode.replaceChild(cloned, dom)
 }
 
 const renderBinds = (elements) => {
@@ -222,9 +253,6 @@ function renderRepeats(elements, parentPointer = null, parentPointerPath = null,
     })
     el.innerHTML = resultHTML;
 
-
-    console.log("Result html", resultHTML)
-
   })
 }
 
@@ -265,6 +293,33 @@ function setNestedLevel(node, repeatAttr = 'data-repeat', levelAttr = 'data-repe
   return level;
 }
 
+function evaluateCondition(expression, state) {
+  if (state) {
+    try {
+      // Replace all {variable} with real values from state
+      const populatedExpr = expression.replace(/\{(.*?)\}/g, (_, path) => {
+        const value = getValueByPath(state, path.trim());
+
+        // If value is string, wrap with quotes
+        if (typeof value === 'string') {
+          return `'${value}'`;
+        } else if (typeof value === 'object') {
+          return JSON.stringify(value); // or throw error
+        } else {
+          return value;
+        }
+      });
+
+      console.log("Populated expression", populatedExpr)
+
+      return Function(`return (${populatedExpr});`)();
+    } catch (e) {
+      console.warn("Failed to evaluate condition:", expression, e);
+      return false;
+    }
+
+  }
+};
 
 
 

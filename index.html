@@ -43,15 +43,15 @@
   </div>
   <div data-vn-if="{appState} === 'loading'">Single Loading spinner</div>
   <div data-vn-condition>
-    <template data-vn-if="{appState} === 'loading'">
+    <div data-vn-if="{appState} === 'loading'">
       <div>Loading</div>
-    </template>
-    <template data-vn-if="{appState} === 'loaded'">
+    </div>
+    <div data-vn-if="{appState} === 'loaded'">
       <div>Loaded</div>
-    </template>
-    <template data-vn-if="{appState} === 'error'">
+    </div>
+    <div data-vn-if="{appState} === 'error'">
       <div>Error</div>
-    </template>
+    </div>
 
   </div>
 
