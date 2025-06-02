@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as t,ae as n}from"./chunks/framework.BtEkjhVd.js";const o=JSON.parse('{"title":"VaneJS Documentation","description":"","frontmatter":{},"headers":[],"relativePath":"index.md","filePath":"index.md"}'),e={name:"index.md"};function l(h,i,p,k,r,d){return t(),a("div",null,i[0]||(i[0]=[n("",29)]))}const g=s(e,[["render",l]]);export{o as __pageData,g as default};
