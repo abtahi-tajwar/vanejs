@@ -2,13 +2,32 @@
 
 VaneJS is a lightweight JavaScript library that can be added to your project in multiple ways.
 
+## Download from GitHub
+
+You can download VaneJS directly from the GitHub repository:
+
+1. Visit [https://github.com/abtahi-tajwar/vanejs](https://github.com/abtahi-tajwar/vanejs)
+2. Navigate to the `dist` folder
+3. Download `engine.js` or `engine.min.js`
+4. Add it to your project directory
+
 ## Direct Script Include
 
-The simplest way to use VaneJS is to include it directly in your HTML file:
+Include VaneJS in your HTML file:
 
 ```html
-<script src="path/to/engineV2.js"></script>
+<script src="path/to/engine.js"></script>
 ```
+
+Or use it directly from your local project:
+
+```html
+<script src="./engine.js"></script>
+```
+
+## CDN (Coming Soon)
+
+CDN support will be available in future releases.
 
 ## NPM Installation (Coming Soon)
 
