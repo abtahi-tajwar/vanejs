@@ -197,7 +197,9 @@ function renderConditions(elements) {
   elements.forEach(el => {
     if (el.hasAttribute(EngineAttributes.IF) && !el.parentNode.hasAttribute(EngineAttributes.CONDITION)) {
       const domEl = document.querySelector(`[${EngineAttributes.TARGET}="${el.getAttribute(EngineAttributes.ID)}"]`)
+      if (!domEl) return;
       const alreadyRemoved = domEl.hasAttribute(EngineAttributes.CONDITION_REMNANT);
+
       const condition = el.getAttribute(EngineAttributes.IF);
       const result = evaluateCondition(condition, appStates);
 
@@ -210,12 +212,16 @@ function renderConditions(elements) {
       let foundTrue = false;
 
       Array.from(el.children).forEach(block => {
-        if (block.hasAttribute(EngineAttributes.IF) || block.hasAttribute(EngineAttributes.ELSEIF) || block.hasAttribute(ELSE)) {
-          const condition = el.getAttribute(EngineAttributes.IF);
-          const result = evaluateCondition(condition, appStates);
-          const domEl = document.querySelector(`[${EngineAttributes.TARGET}="${el.getAttribute(EngineAttributes.ID)}"]`)
+        if (block.hasAttribute(EngineAttributes.IF) || block.hasAttribute(EngineAttributes.ELSEIF) || block.hasAttribute(EngineAttributes.ELSE)) {
+          const domEl = document.querySelector(`[${EngineAttributes.TARGET}="${block.getAttribute(EngineAttributes.ID)}"]`)
+          if (!domEl) return;
           const alreadyRemoved = domEl.hasAttribute(EngineAttributes.CONDITION_REMNANT);
+
           if (block.hasAttribute(EngineAttributes.IF)) {
+            const condition = block.getAttribute(EngineAttributes.IF);
+            const result = evaluateCondition(condition, appStates);
+            foundTrue = result;
+
             if (result && alreadyRemoved) {
               reAddConditionItem(domEl)
             } else if (!result && !alreadyRemoved) {
@@ -223,9 +229,13 @@ function renderConditions(elements) {
             }
           }
           else if (block.hasAttribute(EngineAttributes.ELSEIF)) {
+            const condition = block.getAttribute(EngineAttributes.ELSEIF);
+            const result = evaluateCondition(condition, appStates);
+
             if (!foundTrue) {
               if (result && alreadyRemoved) {
                 reAddConditionItem(domEl)
+                foundTrue = true
               } else if (!result && !alreadyRemoved) {
                 removeConditionItem(domEl)
               }
@@ -262,7 +272,13 @@ function reAddConditionItem(dom) {
   const cacheDOM = getTargetDOM(templateCache, targetId)
   const cloned = cacheDOM.cloneNode(true);
   cloned.setAttribute(EngineAttributes.TARGET, targetId)
-  cloned.removeAttribute(EngineAttributes.ID)
+  // Recursively update all children
+  const descendants = cloned.querySelectorAll(`[${EngineAttributes.ID}]`);
+  descendants.forEach(child => {
+    const id = child.getAttribute(EngineAttributes.ID);
+    child.setAttribute(EngineAttributes.TARGET, id);
+    child.removeAttribute(EngineAttributes.ID);
+  }); cloned.removeAttribute(EngineAttributes.ID)
   reRenderDOM(cloned)
   dom.parentNode.replaceChild(cloned, dom)
 
@@ -295,6 +311,7 @@ function renderRepeats(elements, parentPointer = null, parentPointerPath = null,
     const cacheDOM = getTargetDOM(templateCache, cacheTarget)
 
     if (level === 0) {
+      console.log("Cache DOM", cacheDOM, el)
       el.innerHTML = cacheDOM.innerHTML;
       el.querySelectorAll(`[${EngineAttributes.ID}]`).forEach(item => {
         const id = item.getAttribute(EngineAttributes.ID);

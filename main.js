@@ -17,6 +17,7 @@ window.onload = function() {
   $setState("testname", { label: "something" })
 
   $setState("appState", "loading");;
+  $setState("theme", "light")
   console.log("Get State appState", $getState("appState"))
   document.getElementById("inpt").addEventListener("input", (e) => {
     console.log("Input", e.target.value)
@@ -53,6 +54,14 @@ window.onload = function() {
     input.addEventListener("change", (e) => {
       $setState("appState", e.target.value);
     });
+  });
+
+  document.getElementById('themeToggle').addEventListener('change', function() {
+    if (this.checked) {
+      $setState("theme", "light");
+    } else {
+      $setState("theme", "dark");
+    }
   });
 };
 

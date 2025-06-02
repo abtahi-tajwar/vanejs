@@ -29,7 +29,15 @@
     <label><input type="radio" name="state" value="error" /> Error</label>
   </form>
   <p data-bind="user.bio">Bio</p>
-
+  <button data-api="{store.api}" target="something"></button>
+  <div data-api-target="something">
+    <template>
+      <p data-api-bind="name"></p>
+    </template>
+    <template data-fallback>
+      <div>Loading...</div>
+    </template>
+  </div>
   <div data-bind="testname.label">This will not show</div>
 
   <div data-repeat="user.skills as skill">
