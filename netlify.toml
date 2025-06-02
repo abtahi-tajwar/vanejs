@@ -1,0 +1,5 @@
+[build]
+  base    = "documentation"   # 👈 Enter this folder
+  publish = "dist"             # 👈 After build, publish this folder
+  command = "npm run docs:build"
+

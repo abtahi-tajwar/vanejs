@@ -4,40 +4,102 @@ Here are some basic examples to help you get started with VaneJS.
 
 ## Counter Example
 
-A simple counter that demonstrates basic state management and DOM binding:
+A simple counter that demonstrates state management and event handling:
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
     <title>VaneJS Counter</title>
-    <script src="path/to/engine.js"></script>
+    <script src="path/to/engineV2.js"></script>
 </head>
 <body>
-    <div>
-        <h2>Counter: <span data-bind="counter.value"></span></h2>
-        <button onclick="increment()">+</button>
-        <button onclick="decrement()">-</button>
+    <h2>Counter: <span data-vn-bind="count">0</span></h2>
+    <button id="increment">+</button>
+    <button id="decrement">-</button>
+
+    <script>
+        window.onload = function() {
+            $setState("count", 0);
+
+            document.getElementById("increment").addEventListener("click", () => {
+                const currentCount = $getState("count");
+                $setState("count", currentCount + 1);
+            });
+
+            document.getElementById("decrement").addEventListener("click", () => {
+                const currentCount = $getState("count");
+                $setState("count", currentCount - 1);
+            });
+        }
+    </script>
+</body>
+</html>
+```
+
+## Todo List Example
+
+A more complex example showing list management:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VaneJS Todo List</title>
+    <script src="path/to/engineV2.js"></script>
+    <style>
+        .completed { text-decoration: line-through; }
+    </style>
+</head>
+<body>
+    <h2>Todo List</h2>
+    <input id="newTodo" type="text" placeholder="Add new todo">
+    <button id="addTodo">Add</button>
+
+    <div data-vn-repeat="todos as todo">
+        <div>
+            <input type="checkbox" 
+                   onclick="toggleTodo(event)" 
+                   data-vn-ritem="{todo}.id">
+            <span data-vn-ritem="{todo}.text"
+                  data-vn-class="completed: {todo}.completed"></span>
+        </div>
     </div>
 
     <script>
-        // Initialize state
-        $setState('counter', { value: 0 });
+        window.onload = function() {
+            $setState("todos", [
+                { id: 1, text: "Learn VaneJS", completed: false },
+                { id: 2, text: "Build an app", completed: false }
+            ]);
 
-        function increment() {
-            const counter = $getState('counter');
-            $updateState('counter', {
-                ...counter,
-                value: counter.value + 1
+            document.getElementById("addTodo").addEventListener("click", () => {
+                const input = document.getElementById("newTodo");
+                const todos = $getState("todos");
+                
+                if (input.value.trim()) {
+                    $setState("todos", [
+                        ...todos,
+                        {
+                            id: todos.length + 1,
+                            text: input.value,
+                            completed: false
+                        }
+                    ]);
+                    input.value = "";
+                }
             });
         }
 
-        function decrement() {
-            const counter = $getState('counter');
-            $updateState('counter', {
-                ...counter,
-                value: counter.value - 1
-            });
+        function toggleTodo(event) {
+            const todoId = parseInt(event.target.dataset.vnRitem);
+            const todos = $getState("todos");
+            
+            $setState("todos", todos.map(todo => 
+                todo.id === todoId 
+                    ? { ...todo, completed: !todo.completed }
+                    : todo
+            ));
         }
     </script>
 </body>
@@ -46,113 +108,60 @@ A simple counter that demonstrates basic state management and DOM binding:
 
 ## User Profile Example
 
-A more complex example showing list rendering and conditional states:
+An example showing nested state and conditional rendering:
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
     <title>VaneJS User Profile</title>
-    <script src="path/to/engine.js"></script>
+    <script src="path/to/engineV2.js"></script>
 </head>
 <body>
-    <div>
-        <div data-if="appState === 'loading'">
-            <template>
-                <p>Loading...</p>
-            </template>
-        </div>
-
-        <div data-if="appState === 'loaded'">
-            <template>
-                <h2>User Profile</h2>
-                <p>Name: <span data-bind="user.name"></span></p>
-                <input 
-                    type="text" 
-                    id="nameInput" 
-                    onchange="updateName(event)"
-                    placeholder="Enter name"
-                >
-
-                <h3>Skills</h3>
-                <div data-repeat="user.skills in skill">
-                    <template>
-                        <div>
-                            <h4 data-ritem="{skill}.label"></h4>
-                            <div data-repeat="{skill}.tags in tag">
-                                <template>
-                                    <span data-ritem="{tag}"></span>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-                
-                <button onclick="addSkill()">Add Skill</button>
-            </template>
+    <div data-vn-if="{profile.loading}">
+        Loading...
+    </div>
+    <div data-vn-elseif="{profile.error}">
+        Error loading profile: <span data-vn-bind="profile.error"></span>
+    </div>
+    <div data-vn-else>
+        <h2>Profile: <span data-vn-bind="profile.data.name"></span></h2>
+        
+        <h3>Skills:</h3>
+        <div data-vn-repeat="profile.data.skills as skill">
+            <span data-vn-ritem="{skill}.name"></span>
+            (<span data-vn-ritem="{skill}.level"></span>)
         </div>
     </div>
 
     <script>
-        // Initialize state
-        $setState('appState', 'loading');
-        $setState('user', {
-            name: 'John Doe',
-            skills: [
-                { label: 'Web Development', tags: ['HTML', 'CSS', 'JavaScript'] },
-                { label: 'Backend', tags: ['Node.js', 'Python'] }
-            ]
-        });
+        window.onload = function() {
+            // Simulate loading state
+            $setState("profile", { loading: true });
 
-        // Simulate loading
-        setTimeout(() => {
-            $setState('appState', 'loaded');
-        }, 1000);
-
-        function updateName(event) {
-            const user = $getState('user');
-            $updateState('user', {
-                ...user,
-                name: event.target.value
-            });
-        }
-
-        function addSkill() {
-            const user = $getState('user');
-            $updateState('user', {
-                ...user,
-                skills: [
-                    ...user.skills,
-                    { 
-                        label: `Skill ${user.skills.length + 1}`,
-                        tags: ['New']
+            // Simulate API call
+            setTimeout(() => {
+                $setState("profile", {
+                    loading: false,
+                    data: {
+                        name: "John Doe",
+                        skills: [
+                            { name: "JavaScript", level: "Advanced" },
+                            { name: "HTML", level: "Expert" },
+                            { name: "CSS", level: "Intermediate" }
+                        ]
                     }
-                ]
-            });
+                });
+            }, 1000);
         }
     </script>
 </body>
 </html>
 ```
 
-## Key Concepts Demonstrated
-
-1. **State Management**
-   - Initializing state with `$setState`
-   - Reading state with `$getState`
-   - Updating state with `$updateState`
-
-2. **DOM Bindings**
-   - Simple text binding with `data-bind`
-   - List rendering with `data-repeat`
-   - Conditional rendering with `data-if`
-
-3. **Event Handling**
-   - Handling user input
-   - Updating state based on events
-   - Managing complex state updates
-
-4. **Templates**
-   - Using templates for repeated content
-   - Using templates for conditional content
-   - Nested templates for complex structures 
+These examples demonstrate the core features of VaneJS:
+- State management with `$setState` and `$getState`
+- DOM binding with `data-vn-bind`
+- List rendering with `data-vn-repeat` and `data-vn-ritem`
+- Conditional rendering with `data-vn-if`, `data-vn-elseif`, and `data-vn-else`
+- Event handling and state updates 
