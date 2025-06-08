@@ -58,22 +58,33 @@
   </style>
   <script type="module" src="/dist/vanjejs.module.js"></script>
 </head>
+.
 
 <body>
-
+  <button data-vn-on="click:testEFunc('something', {user.name}); mouseover:testDBLFunc({user.bio})">Test Event</button>
   <h1 data-vn-bind="user.name">Page</h1>
+  <input type="text" id="storename-input" placeholder="Enter username">
+  <a href="about.html">About page</a>
   <input id="inpt" />
   <div>
     <button id="minus">-</button>
     <button id="plus">+</button>
   </div>
 
+  <button id="apicallbutton">Call API</button>
+
+  <div>
+    <h2>User data api</h2>
+    <p data-vn-bind="userapi.title">User name</p>
+    <p data-vn-bind="userapi.id">ID:</p>
+  </div>
   <form id="status-form">
     <label><input type="radio" name="state" value="loading" /> Loading</label><br />
     <label><input type="radio" name="state" value="loaded" /> Loaded</label><br />
     <label><input type="radio" name="state" value="error" /> Error</label>
   </form>
   <p data-vn-bind="user.bio">Bio</p>
+  <p data-vn-bind="mystore.name">Store Name</p>
 
   <div data-vn-repeat="user.skills as skill">
     <li data-vn-ritem="{skill}.label"></li><span data-vn-bind="user.name">Abtahi</span>
@@ -98,7 +109,7 @@
   </div>
   <div data-vn-condition>
     <div data-vn-if="{appState} === 'loading'">
-      <div>Loading</div>
+      <div style="background-color: green">Loading</div>
       <div>
         <ul data-vn-repeat="user.skills as skill">
           <li>

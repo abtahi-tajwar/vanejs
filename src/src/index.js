@@ -1,3 +1,5 @@
+import { parseEventQuery } from "./helper";
+
 let prefix = 'vn'; // or '' for no prefix
 
 function makeAttr(name) {
@@ -15,8 +17,36 @@ const EngineAttributes = {
   NESTED_LEVEL: makeAttr('nested-level'),
   ID: makeAttr('id'),
   TARGET: makeAttr('target'),
-  CONDITION_REMNANT: makeAttr('cond-remnant')
+  CONDITION_REMNANT: makeAttr('cond-remnant'),
+  EVENT: makeAttr('on'),
+  EVENT_TARGET: makeAttr('event-target')
 };
+
+const EventFunctions = new Proxy({}, {
+  get(target, prop) {
+    // console.log(`Accessing ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    // console.log(`Setting ${prop}`);
+    target[prop] = value;
+    // Here you can trigger re-renders if you build UI binding
+    return true;
+  }
+});
+
+const EventTargets = new Proxy({}, {
+  get(target, prop) {
+    // console.log(`Accessing ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    // console.log(`Setting ${prop}`);
+    target[prop] = value;
+    // Here you can trigger re-renders if you build UI binding
+    return true;
+  }
+});
 
 const appStates = new Proxy({}, {
   get(target, prop) {
@@ -31,6 +61,19 @@ const appStates = new Proxy({}, {
   }
 });
 
+const appStores = new Proxy({}, {
+  get(target, prop) {
+    // console.log(`Accessing ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    // console.log(`Setting ${prop}`);
+    target[prop] = value;
+    // Here you can trigger re-renders if you build UI binding
+    return true;
+  }
+
+})
 let templateCache = null;
 
 export function $setState(name, obj) {
@@ -47,6 +90,60 @@ export function $deleteState(name) {
   updateDOMValues(null);
 }
 
+export function $setStore(name, obj) {
+  appStores[name] = obj;
+  appStates[name] = obj;
+
+  const existingStore = sessionStorage.getItem("store");
+  if (!existingStore) {
+    sessionStorage.setItem("store", JSON.stringify({
+      [name]: obj
+    }));
+  } else {
+    const existing = JSON.parse(existingStore);
+    existing[name] = obj;
+    sessionStorage.setItem("store", JSON.stringify(existing));
+  }
+  updateDOMValues(name)
+}
+export function $getStore(name) {
+  try {
+    const store = JSON.parse(sessionStorage.getItem("store") || "{}");
+    return store[name] !== undefined ? store[name] : null;
+  } catch (e) {
+    console.error("Failed to parse store:", e);
+    return null;
+  }
+}
+export function $event(name, func) {
+  EventFunctions[name] = func;
+}
+export function initStore() {
+  try {
+    const existingStore = sessionStorage.getItem("store");
+
+    if (!existingStore) {
+      console.warn("No store found in sessionStorage.");
+      return;
+    }
+
+    const parsedStore = JSON.parse(existingStore);
+
+    if (typeof parsedStore !== 'object' || parsedStore === null) {
+      console.error("Invalid store format in sessionStorage.");
+      return;
+    }
+
+    // Push all keys into appStores and appStates
+    for (const [key, value] of Object.entries(parsedStore)) {
+      $setStore(key, value)
+    }
+
+
+  } catch (e) {
+    console.error("Failed to initialize store:", e);
+  }
+}
 const refactorDOM = () => {
   const _cache = document.body.cloneNode(true);
   const selectorString = Object.values(EngineAttributes)
@@ -131,6 +228,11 @@ const updateDOMValues = (stateName) => {
     `[${EngineAttributes.REPEAT}^="${stateName}."]`
   );
   renderRepeats(repeatElements);
+
+  const eventElements = document.querySelectorAll(
+    `[${EngineAttributes.EVENT}]`
+  )
+  renderEvents(eventElements);
 };
 
 // const reRenderDOM = (htmlCollection, skip = null) => {
@@ -311,7 +413,6 @@ function renderRepeats(elements, parentPointer = null, parentPointerPath = null,
     const cacheDOM = getTargetDOM(templateCache, cacheTarget)
 
     if (level === 0) {
-      console.log("Cache DOM", cacheDOM, el)
       el.innerHTML = cacheDOM.innerHTML;
       el.querySelectorAll(`[${EngineAttributes.ID}]`).forEach(item => {
         const id = item.getAttribute(EngineAttributes.ID);
@@ -352,7 +453,39 @@ function renderRepeats(elements, parentPointer = null, parentPointerPath = null,
 
   })
 }
+function renderEvents(elements) {
+  elements.forEach(el => {
+    if (!el.hasAttribute(EngineAttributes.EVENT_TARGET)) {
+      const eventId = generateRandomID();
+      el.setAttribute(EngineAttributes.EVENT_TARGET, eventId);
+      const query = el.getAttribute(EngineAttributes.EVENT);
+      const parsedQuery = parseEventQuery(query);
+      console.log("Parsed query", parsedQuery);
+      parsedQuery.forEach(qitem => {
+        el.addEventListener(qitem.event, () => eventRootHandler(qitem))
+      })
+      EventTargets[eventId] =
+      {
+        click: () => eventRootHandler(eventId)
+      }
+      console.log("Event targetsl", EventTargets)
 
+    }
+  })
+}
+
+function eventRootHandler(query) {
+  console.log("The query", query);
+  const modified = query.params.map(p => {
+    if (typeof p === "string" && p.startsWith('{') && p.endsWith('}')) {
+      const path = removeCurlyBraces(p);
+      return getValueByPath(appStates, path);
+    }
+    return p
+  })
+  console.log("Modified", modified)
+  EventFunctions[query.funcName]({ params: modified });
+}
 // Helper functions
 function getValueByPath(obj, path) {
   const normalizedPath = path.replace(/\[(\w+)\]/g, '.$1'); // arr[2] -> arr.2
@@ -407,7 +540,6 @@ function evaluateCondition(expression, state) {
         }
       });
 
-      console.log("Populated expression", populatedExpr)
 
       return Function(`return (${populatedExpr});`)();
     } catch (e) {
@@ -418,13 +550,30 @@ function evaluateCondition(expression, state) {
   }
 };
 
+function generateRandomID(length = 10) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, x => chars[x % chars.length]).join('');
+}
 
+function removeCurlyBraces(str) {
+  str = str.trim(); // remove any surrounding whitespace
+
+  if (str.startsWith("{") && str.endsWith("}")) {
+    return str.slice(1, -1);
+  }
+
+  return str;
+}
 
 
 
 // Execution Layer
 window.addEventListener('load', function() {
   refactorDOM();
+  initStore();
+  // reRenderDOM(this.document);
 });
 
 

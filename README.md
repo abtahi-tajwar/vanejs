@@ -9,10 +9,11 @@ VaneJS is a lightweight, reactive JavaScript library for building dynamic user i
 - 🔄 **Reactive**: Automatic DOM updates when state changes
 - 📝 **Template-Based**: Familiar HTML-based templating system
 - 🎯 **Focused**: Built for simplicity and performance
+- 💾 **Persistent Store**: Cross-page state management with localStorage
 
 ## Quick Start
 
-1. Download `engineV2.js` from the `dist` folder
+1. Download `engine.js` or `engine.min.js` from the `dist` folder
 2. Include it in your HTML file:
 
 ```html
@@ -20,7 +21,7 @@ VaneJS is a lightweight, reactive JavaScript library for building dynamic user i
 <html>
 <head>
     <title>VaneJS Quick Start</title>
-    <script src="path/to/engineV2.js"></script>
+    <script src="path/to/engine.js"></script>
 </head>
 <body>
     <div>
@@ -45,11 +46,12 @@ VaneJS is a lightweight, reactive JavaScript library for building dynamic user i
 
 ### State Management
 ```javascript
-// Set state
+// Temporary state (resets on page refresh)
 $setState("user", { name: "John", age: 30 });
-
-// Get state
 const user = $getState("user");
+
+// Persistent state (survives page refresh)
+$setStore("preferences", { theme: "dark" });
 ```
 
 ### DOM Bindings
@@ -66,17 +68,30 @@ const user = $getState("user");
 </div>
 ```
 
+### Persistent Store
+```html
+<!-- Page 1 -->
+<input 
+    type="text" 
+    onchange="$setStore('user', { name: this.value })"
+>
+
+<!-- Page 2 (data persists) -->
+<h1>Welcome back, <span data-vn-bind="user.name"></span>!</h1>
+```
+
 ## Documentation
 
 Visit our [documentation website](https://vanejs.netlify.app) for:
 - [Installation Guide](https://vanejs.netlify.app/guide/installation.html)
 - [Core Concepts](https://vanejs.netlify.app/guide/core-concepts.html)
 - [API Reference](https://vanejs.netlify.app/api/state-management.html)
+- [Store Management](https://vanejs.netlify.app/api/store-management.html)
 - [Examples](https://vanejs.netlify.app/examples/basic.html)
 
 ## Examples
 
-### Todo List
+### Todo List with Persistence
 ```html
 <div data-vn-repeat="todos as todo">
     <div class="todo-item">
@@ -92,39 +107,45 @@ Visit our [documentation website](https://vanejs.netlify.app) for:
 
 <script>
 window.onload = function() {
-    $setState("todos", [
-        { id: 1, text: "Learn VaneJS", completed: false },
-        { id: 2, text: "Build an app", completed: false }
-    ]);
+    // Initialize todos from store or set default
+    if (!$getState("todos")) {
+        $setStore("todos", [
+            { id: 1, text: "Learn VaneJS", completed: false },
+            { id: 2, text: "Build an app", completed: false }
+        ]);
+    }
+}
+
+function toggleTodo(event) {
+    const todoId = parseInt(event.target.dataset.vnRitem);
+    const todos = $getState("todos");
+    
+    $setStore("todos", todos.map(todo => 
+        todo.id === todoId 
+            ? { ...todo, completed: !todo.completed }
+            : todo
+    ));
 }
 </script>
 ```
 
-### Dynamic List with Filtering
+### Theme Switcher with Persistence
 ```html
-<input 
-    type="text" 
-    placeholder="Search..."
-    oninput="handleSearch(event)"
->
-
-<div data-vn-repeat="filteredItems as item">
-    <div class="item">
-        <h3 data-vn-ritem="{item}.name"></h3>
-        <p data-vn-ritem="{item}.description"></p>
-    </div>
+<div data-vn-class="dark: {themeStore}.isDark">
+    <button onclick="toggleTheme()">Toggle Theme</button>
 </div>
 
 <script>
-function handleSearch(event) {
-    const query = event.target.value.toLowerCase();
-    const items = $getState("items");
-    
-    const filtered = items.filter(item => 
-        item.name.toLowerCase().includes(query)
-    );
-    
-    $setState("filteredItems", filtered);
+window.onload = function() {
+    // Initialize theme preference
+    if (!$getState("themeStore")) {
+        $setStore("themeStore", { isDark: false });
+    }
+}
+
+function toggleTheme() {
+    const theme = $getState("themeStore");
+    $setStore("themeStore", { isDark: !theme.isDark });
 }
 </script>
 ```

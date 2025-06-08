@@ -96,10 +96,7 @@ function clickfunc(data) {
   console.log("Click func data", data);
 }
 
-$event("testEFunc", () => {
+$event("testefunc", () => {
   console.log("From test func");
 })
-$event("testDBLFunc", ({ params }) => {
-  const [bio] = params;
-  console.log("dbl click functions", bio)
-})
+

@@ -6,7 +6,9 @@
     "build:module": "webpack --config webpack.config.module.js",
     "build:umd": "webpack --config webpack.config.umd.js",
     "build": "npm run build:module && npm run build:umd",
-    "dev": "webpack --mode development --watch"
+    "dev": "webpack --mode development --watch",
+    "dev:module": "webpack --config webpack.config.module.js --mode development --watch",
+    "dev:umd": "webpack --config webpack.config.umd.js --mode development --watch"
   },
   "keywords": [],
   "author": "",
