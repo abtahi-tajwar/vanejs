@@ -13,6 +13,8 @@ VaneJS provides a simple yet powerful way to build reactive web applications wit
 - 🔄 **Reactive**: Automatic DOM updates when state changes
 - 📝 **Template-Based**: Familiar HTML-based templating system
 - 🎯 **Focused**: Built for simplicity and performance
+- 🔗 **Event-Driven**: Powerful event management with dynamic parameter passing
+- 💾 **Persistent Storage**: Cross-page state persistence with store management
 
 ## Quick Start
 
@@ -27,7 +29,7 @@ Create your first reactive component:
 ```html
 <div>
   <h1 data-vn-bind="message"></h1>
-  <button onclick="updateMessage()">Update Message</button>
+  <button data-vn-on="click:updateMessage()">Update Message</button>
 </div>
 
 <script>
@@ -35,22 +37,47 @@ window.onload = function() {
   // Initialize state
   $setState('message', 'Hello, VaneJS!');
 
-  function updateMessage() {
+  // Register event handler
+  $event("updateMessage", () => {
     $setState('message', 'Hello, World!');
-  }
+  });
 }
 </script>
 ```
 
 ## Core Features
 
-### State Management
+### State
 ```javascript
 // Set state
 $setState("user", { name: "John", age: 30 });
 
 // Get state
 const user = $getState("user");
+```
+
+### Store Management
+```javascript
+// Set persistent store data
+$setStore("userPreferences", { theme: "dark" });
+
+// Data persists across page refreshes
+```
+
+### Event Management
+```html
+<!-- Event binding with dynamic parameters -->
+<button data-vn-on="click:handleClick({user.id}, {user.name})">
+  Click Me
+</button>
+```
+
+```javascript
+// Event handler
+$event("handleClick", ({ params }) => {
+  const [userId, userName] = params;
+  console.log(`Clicked by ${userName} (ID: ${userId})`);
+});
 ```
 
 ### DOM Bindings
@@ -83,6 +110,8 @@ VaneJS is designed for developers who want:
 - Fast performance with a small footprint
 - Familiar HTML-based templating
 - Clear and predictable state management
+- Cross-page state persistence
+- Powerful event handling with dynamic parameters
 
 ## Example Applications
 
@@ -92,6 +121,8 @@ Check out our [examples](/examples/basic) to see VaneJS in action:
 - Todo List
 - User Profile
 - Dynamic Forms
+- Event Handling
+- Store Management
 - And more!
 
 ## Contributing

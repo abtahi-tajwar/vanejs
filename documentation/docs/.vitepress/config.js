@@ -24,6 +24,7 @@ export default {
           items: [
             { text: 'State Management', link: '/api/state-management' },
             { text: 'Store Management', link: '/api/store-management' },
+            { text: 'Event Management', link: '/api/event-management' },
             { text: 'DOM Bindings', link: '/api/dom-bindings' },
             { text: 'Conditional Rendering', link: '/api/conditional-rendering' },
             { text: 'List Rendering', link: '/api/list-rendering' }
