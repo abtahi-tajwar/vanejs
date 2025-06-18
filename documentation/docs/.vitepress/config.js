@@ -43,7 +43,7 @@ export default {
       ]
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/yourusername/vanejs' }
+      { icon: 'github', link: 'https://github.com/abtahi-tajwar/vanejs' }
     ]
   }
 } 
