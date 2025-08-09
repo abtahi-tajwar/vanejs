@@ -9,13 +9,14 @@ VaneJS provides a simple but powerful state management system through a set of g
 Creates or updates a global state with the given name and value.
 
 ```javascript
-$setState('user', {
-  name: 'John',
-  age: 25
+$setState("user", {
+  name: "John",
+  age: 25,
 });
 ```
 
 **Parameters:**
+
 - `name` (string): The identifier for the state
 - `obj` (any): The value to store in the state
 
@@ -24,14 +25,16 @@ $setState('user', {
 Retrieves the current value of a state by its name.
 
 ```javascript
-const user = $getState('user');
+const user = $getState("user");
 console.log(user.name); // 'John'
 ```
 
 **Parameters:**
+
 - `name` (string): The identifier of the state to retrieve
 
 **Returns:**
+
 - The current value of the state
 
 ### $updateState(name, obj)
@@ -39,13 +42,14 @@ console.log(user.name); // 'John'
 Updates an existing state with new values while triggering reactive updates.
 
 ```javascript
-$updateState('user', {
-  ...getState('user'),
-  age: 26
+$updateState("user", {
+  ...getState("user"),
+  age: 26,
 });
 ```
 
 **Parameters:**
+
 - `name` (string): The identifier of the state to update
 - `obj` (any): The new value for the state
 
@@ -54,10 +58,11 @@ $updateState('user', {
 Removes a state from the global state management system.
 
 ```javascript
-$deleteState('user');
+$deleteState("user");
 ```
 
 **Parameters:**
+
 - `name` (string): The identifier of the state to delete
 
 ## Best Practices
@@ -65,4 +70,4 @@ $deleteState('user');
 1. Always use `$updateState` when modifying existing state to ensure proper reactive updates
 2. Keep state objects flat when possible for better performance
 3. Use meaningful state names to maintain code clarity
-4. Consider using namespacing in state names for larger applications (e.g., 'users.active', 'users.pending') 
+4. Consider using namespacing in state names for larger applications (e.g., 'users.active', 'users.pending')

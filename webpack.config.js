@@ -1,33 +1,32 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
-  entry: './src/index.js',
+  entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'vanjejs.min.js',
+    path: path.resolve(__dirname, "dist"),
+    filename: "vanjejs.min.js",
     // library: 'VaneJS',
     library: {
-      type: "module"
+      type: "module",
     },
     // libraryTarget: 'umd',
-    globalObject: 'this',
+    globalObject: "this",
     umdNamedDefine: true,
-    libraryExport: 'default'  // 👈 IMPORTANT!
+    libraryExport: "default", // 👈 IMPORTANT!
   },
   experiments: {
     outputModule: true, // <-- this must be true
   },
-
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader'
-        }
-      }
-    ]
+          loader: "babel-loader",
+        },
+      },
+    ],
   },
-  mode: 'production'
+  mode: "production",
 };

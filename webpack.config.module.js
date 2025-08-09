@@ -1,17 +1,17 @@
 // webpack.config.module.js
-const path = require('path');
+const path = require("path");
 
 module.exports = {
-  entry: './src/index.js',
+  entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'vanjejs.module.js',        // <- Different filename
+    path: path.resolve(__dirname, "dist"),
+    filename: "vanjejs.module.js", // <- Different filename
     library: {
-      type: "module"                      // <- ES Module output
+      type: "module", // <- ES Module output
     },
   },
   experiments: {
-    outputModule: true,                   // <- Required for module
+    outputModule: true, // <- Required for module
   },
   module: {
     rules: [
@@ -19,11 +19,10 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader'
-        }
-      }
-    ]
+          loader: "babel-loader",
+        },
+      },
+    ],
   },
-  mode: 'production'
+  mode: "production",
 };
-

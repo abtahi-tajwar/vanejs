@@ -1,142 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Litebind Example</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 2rem;
+      }
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Litebind Example</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 2rem;
-    }
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+      }
 
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
 
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 34px;
+      }
 
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-      border-radius: 34px;
-    }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
 
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
+      input:checked + .slider {
+        background-color: #2196f3;
+      }
 
-    input:checked+.slider {
-      background-color: #2196F3;
-    }
-
-    input:checked+.slider:before {
-      transform: translateX(26px);
-    }
-  </style>
-  <script type="module" src="/dist/vanjejs.module.js"></script>
-</head>
-.
-
-<body>
-  <button data-vn-on="click:testEFunc('something', {user.name}); mouseover:testDBLFunc({user.bio})">Test Event</button>
-  <h1 data-vn-bind="user.name">Page</h1>
-  <input type="text" id="storename-input" placeholder="Enter username">
-  <a href="about.html">About page</a>
-  <input id="inpt" />
-  <div>
-    <button id="minus">-</button>
-    <button id="plus">+</button>
-  </div>
-
-  <button id="apicallbutton">Call API</button>
-
-  <div>
-    <h2>User data api</h2>
-    <p data-vn-bind="userapi.title">User name</p>
-    <p data-vn-bind="userapi.id">ID:</p>
-  </div>
-  <form id="status-form">
-    <label><input type="radio" name="state" value="loading" /> Loading</label><br />
-    <label><input type="radio" name="state" value="loaded" /> Loaded</label><br />
-    <label><input type="radio" name="state" value="error" /> Error</label>
-  </form>
-  <p data-vn-bind="user.bio">Bio</p>
-  <p data-vn-bind="mystore.name">Store Name</p>
-
-  <div data-vn-repeat="user.skills as skill">
-    <li data-vn-ritem="{skill}.label"></li><span data-vn-bind="user.name">Abtahi</span>
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+    </style>
+    <script type="module" src="/dist/vanjejs.module.js"></script>
+  </head>
+  <body>
+    <button
+      data-vn-on="click:testEFunc('something', {user.name}); mouseover:testDBLFunc({user.bio})"
+    >
+      Test Event
+    </button>
+    <h1 data-vn-bind="user.name">Page</h1>
+    <input type="text" id="storename-input" placeholder="Enter username" />
+    <a href="about.html">About page</a>
+    <input id="inpt" />
     <div>
-      <div style="background-color: red;">
-        <span data-vn-bind="user.name"></span>
-      </div>
-    </div>
-    <div data-vn-repeat="user.education as ed">
-      <span data-vn-ritem="{ed}.label">University</span>
+      <button id="minus">-</button>
+      <button id="plus">+</button>
     </div>
 
-    <div data-vn-repeat="{skill}.tags as tag">
-      <span data-vn-ritem="{tag}"></span>
-    </div>
+    <button id="apicallbutton">Call API</button>
 
-  </div>
-  <div data-vn-if="{appState} === 'loading'">
     <div>
-      <span data-vn-bind="user.bio"></span>
+      <h2>User data api</h2>
+      <p data-vn-bind="userapi.title">User name</p>
+      <p data-vn-bind="userapi.id">ID:</p>
     </div>
-  </div>
-  <div data-vn-condition>
-    <div data-vn-if="{appState} === 'loading'">
-      <div style="background-color: green">Loading</div>
+    <form id="status-form">
+      <label><input type="radio" name="state" value="loading" /> Loading</label
+      ><br />
+      <label><input type="radio" name="state" value="loaded" /> Loaded</label
+      ><br />
+      <label><input type="radio" name="state" value="error" /> Error</label>
+    </form>
+    <p data-vn-bind="user.bio">Bio</p>
+    <p data-vn-bind="mystore.name">Store Name</p>
+
+    <div data-vn-repeat="user.skills as skill">
+      <li data-vn-ritem="{skill}.label"></li>
+      <span data-vn-bind="user.name">Abtahi</span>
       <div>
-        <ul data-vn-repeat="user.skills as skill">
-          <li>
-            <span data-vn-ritem="{skill}.label">Li Skill Label</span>
-            <ul data-vn-repeat="{skill}.tags as tag">
-              <li data-vn-ritem="{tag}">Neste li tag label</li>
-            </ul>
-          </li>
-        </ul>
+        <div style="background-color: red">
+          <span data-vn-bind="user.name"></span>
+        </div>
       </div>
-    </div>
-    <div data-vn-elseif="{appState} === 'loaded'">
-      <div>Loaded</div>
-      <div data-vn-if="{theme} === 'dark'">Dark</div>
-    </div>
-    <div data-vn-else>
-      <div>Error</div>
-      <div data-vn-condition>
-        <div data-vn-if="{theme} === 'dark'">Hello darkness myold friend</div>
-        <div data-vn-else>Hello lightness my new friend</div>
+      <div data-vn-repeat="user.education as ed">
+        <span data-vn-ritem="{ed}.label">University</span>
       </div>
-    </div>
 
-  </div>
-  <label class="switch">
-    <input type="checkbox" id="themeToggle">
-    <span class="slider"></span>
-  </label>
-  <script type="module" src="main.js"></script>
-</body>
+      <div data-vn-repeat="{skill}.tags as tag">
+        <span data-vn-ritem="{tag}"></span>
+      </div>
+    </div>
+    <div data-vn-if="{appState} === 'loading'">
+      <div>
+        <span data-vn-bind="user.bio"></span>
+      </div>
+    </div>
+    <div data-vn-condition>
+      <div data-vn-if="{appState} === 'loading'">
+        <div style="background-color: green">Loading</div>
+        <div>
+          <ul data-vn-repeat="user.skills as skill">
+            <li>
+              <span data-vn-ritem="{skill}.label">Li Skill Label</span>
+              <ul data-vn-repeat="{skill}.tags as tag">
+                <li data-vn-ritem="{tag}">Neste li tag label</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div data-vn-elseif="{appState} === 'loaded'">
+        <div>Loaded</div>
+        <div data-vn-if="{theme} === 'dark'">Dark</div>
+      </div>
+      <div data-vn-else>
+        <div>Error</div>
+        <div data-vn-condition>
+          <div data-vn-if="{theme} === 'dark'">Hello darkness myold friend</div>
+          <div data-vn-else>Hello lightness my new friend</div>
+        </div>
+      </div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="themeToggle" />
+      <span class="slider"></span>
+    </label>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

@@ -15,10 +15,10 @@ The `data-bind` attribute creates a one-way binding between a state value and an
 When the state changes, the element's content updates automatically:
 
 ```javascript
-$setState('user', { name: 'John' });
+$setState("user", { name: "John" });
 // The <p> element will now show "John"
 
-$updateState('user', { name: 'Jane' });
+$updateState("user", { name: "Jane" });
 // The <p> element automatically updates to show "Jane"
 ```
 
@@ -44,12 +44,13 @@ The `data-repeat` attribute allows you to render lists of items based on array s
 ```
 
 State example:
+
 ```javascript
-$setState('user', {
+$setState("user", {
   skills: [
-    { label: 'Web Dev', tags: ['html', 'css'] },
-    { label: 'Backend', tags: ['node', 'python'] }
-  ]
+    { label: "Web Dev", tags: ["html", "css"] },
+    { label: "Backend", tags: ["node", "python"] },
+  ],
 });
 ```
 
@@ -74,10 +75,10 @@ The `data-if` attribute allows you to conditionally render elements based on sta
 ```
 
 ```javascript
-$setState('appState', 'loading');
+$setState("appState", "loading");
 // Element will be visible
 
-$setState('appState', 'loaded');
+$setState("appState", "loaded");
 // Element will be removed from the DOM
 ```
 
@@ -86,4 +87,4 @@ $setState('appState', 'loaded');
 1. Always wrap repeated and conditional content in `<template>` tags
 2. Use dot notation for accessing nested state properties
 3. Keep bindings simple and avoid complex expressions
-4. Use meaningful variable names in repeat expressions 
+4. Use meaningful variable names in repeat expressions
