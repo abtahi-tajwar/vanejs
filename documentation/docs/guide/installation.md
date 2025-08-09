@@ -40,19 +40,19 @@ After including VaneJS in your project, you can start using it immediately. Here
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>VaneJS Example</title>
     <script src="path/to/engineV2.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <h1 data-vn-bind="message">Loading...</h1>
-    
+
     <script>
-        window.onload = function() {
-            $setState("message", "Hello from VaneJS!");
-        }
+      window.onload = function () {
+        $setState("message", "Hello from VaneJS!");
+      };
     </script>
-</body>
+  </body>
 </html>
 ```
 
@@ -60,4 +60,4 @@ After including VaneJS in your project, you can start using it immediately. Here
 
 - Learn about [Core Concepts](/guide/core-concepts)
 - Explore the [API Reference](/api/state-management)
-- Check out [Examples](/examples/basic) 
+- Check out [Examples](/examples/basic)

@@ -5,6 +5,7 @@ VaneJS provides a powerful conditional rendering system using data attributes. T
 ## Basic Syntax
 
 ### If Statement
+
 ```html
 <div data-vn-if="{condition}">
   <!-- content shown when condition is true -->
@@ -12,6 +13,7 @@ VaneJS provides a powerful conditional rendering system using data attributes. T
 ```
 
 ### If-Else Statement
+
 ```html
 <div data-vn-if="{condition}">
   <!-- content shown when condition is true -->
@@ -22,6 +24,7 @@ VaneJS provides a powerful conditional rendering system using data attributes. T
 ```
 
 ### If-ElseIf-Else Statement
+
 ```html
 <div data-vn-if="{condition1}">
   <!-- shown when condition1 is true -->
@@ -51,6 +54,7 @@ You can group conditional statements using `data-vn-condition`:
 Conditions support various JavaScript expressions:
 
 ### Comparison Operators
+
 ```html
 <div data-vn-if="{count} > 0">Positive number</div>
 <div data-vn-if="{age} >= 18">Adult</div>
@@ -58,10 +62,9 @@ Conditions support various JavaScript expressions:
 ```
 
 ### Logical Operators
+
 ```html
-<div data-vn-if="{isLoggedIn} && {hasPermission}">
-  Authorized content
-</div>
+<div data-vn-if="{isLoggedIn} && {hasPermission}">Authorized content</div>
 
 <div data-vn-if="{status} === 'error' || {status} === 'warning'">
   Alert message
@@ -69,15 +72,15 @@ Conditions support various JavaScript expressions:
 ```
 
 ### Nested Properties
+
 ```html
-<div data-vn-if="{user.profile.isVerified}">
-  Verified user content
-</div>
+<div data-vn-if="{user.profile.isVerified}">Verified user content</div>
 ```
 
 ## Best Practices
 
 1. **Group Related Conditions**
+
    ```html
    <div data-vn-condition>
      <div data-vn-if="{theme} === 'dark'">Dark Mode</div>
@@ -86,10 +89,12 @@ Conditions support various JavaScript expressions:
    ```
 
 2. **Use State Variables**
+
    ```javascript
    // Instead of complex conditions in HTML
-   $setState('canEdit', user.role === 'admin' && user.isActive);
+   $setState("canEdit", user.role === "admin" && user.isActive);
    ```
+
    ```html
    <div data-vn-if="{canEdit}">Edit button</div>
    ```
@@ -112,6 +117,7 @@ Conditions support various JavaScript expressions:
 ## Examples
 
 ### Basic Authentication Flow
+
 ```html
 <div data-vn-condition>
   <div data-vn-if="{isLoggedIn}">
@@ -126,6 +132,7 @@ Conditions support various JavaScript expressions:
 ```
 
 ### Multi-State Component
+
 ```html
 <div data-vn-condition>
   <div data-vn-if="{status} === 'loading'">
@@ -144,4 +151,4 @@ Conditions support various JavaScript expressions:
     <div class="content" data-vn-bind="content"></div>
   </div>
 </div>
-``` 
+```

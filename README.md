@@ -19,32 +19,33 @@ VaneJS is a lightweight, reactive JavaScript library for building dynamic user i
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>VaneJS Quick Start</title>
     <script src="path/to/engine.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div>
-        <h1 data-vn-bind="message"></h1>
-        <button onclick="updateMessage()">Update Message</button>
+      <h1 data-vn-bind="message"></h1>
+      <button onclick="updateMessage()">Update Message</button>
     </div>
 
     <script>
-        window.onload = function() {
-            $setState("message", "Hello, VaneJS!");
-        }
+      window.onload = function () {
+        $setState("message", "Hello, VaneJS!");
+      };
 
-        function updateMessage() {
-            $setState("message", "Message updated!");
-        }
+      function updateMessage() {
+        $setState("message", "Message updated!");
+      }
     </script>
-</body>
+  </body>
 </html>
 ```
 
 ## Core Features
 
 ### State Management
+
 ```javascript
 // Temporary state (resets on page refresh)
 $setState("user", { name: "John", age: 30 });
@@ -55,6 +56,7 @@ $setStore("preferences", { theme: "dark" });
 ```
 
 ### DOM Bindings
+
 ```html
 <!-- Text binding -->
 <span data-vn-bind="user.name"></span>
@@ -64,17 +66,15 @@ $setStore("preferences", { theme: "dark" });
 
 <!-- List rendering -->
 <div data-vn-repeat="items as item">
-    <span data-vn-ritem="{item}.name"></span>
+  <span data-vn-ritem="{item}.name"></span>
 </div>
 ```
 
 ### Persistent Store
+
 ```html
 <!-- Page 1 -->
-<input 
-    type="text" 
-    onchange="$setStore('user', { name: this.value })"
->
+<input type="text" onchange="$setStore('user', { name: this.value })" />
 
 <!-- Page 2 (data persists) -->
 <h1>Welcome back, <span data-vn-bind="user.name"></span>!</h1>
@@ -83,6 +83,7 @@ $setStore("preferences", { theme: "dark" });
 ## Documentation
 
 Visit our [documentation website](https://vanejs.netlify.app) for:
+
 - [Installation Guide](https://vanejs.netlify.app/guide/installation.html)
 - [Core Concepts](https://vanejs.netlify.app/guide/core-concepts.html)
 - [API Reference](https://vanejs.netlify.app/api/state-management.html)
@@ -92,61 +93,64 @@ Visit our [documentation website](https://vanejs.netlify.app) for:
 ## Examples
 
 ### Todo List with Persistence
+
 ```html
 <div data-vn-repeat="todos as todo">
-    <div class="todo-item">
-        <input 
-            type="checkbox" 
-            onclick="toggleTodo(event)"
-            data-vn-ritem="{todo}.id"
-            data-vn-checked="{todo}.completed"
-        >
-        <span data-vn-ritem="{todo}.text"></span>
-    </div>
+  <div class="todo-item">
+    <input
+      type="checkbox"
+      onclick="toggleTodo(event)"
+      data-vn-ritem="{todo}.id"
+      data-vn-checked="{todo}.completed"
+    />
+    <span data-vn-ritem="{todo}.text"></span>
+  </div>
 </div>
 
 <script>
-window.onload = function() {
+  window.onload = function () {
     // Initialize todos from store or set default
     if (!$getState("todos")) {
-        $setStore("todos", [
-            { id: 1, text: "Learn VaneJS", completed: false },
-            { id: 2, text: "Build an app", completed: false }
-        ]);
+      $setStore("todos", [
+        { id: 1, text: "Learn VaneJS", completed: false },
+        { id: 2, text: "Build an app", completed: false },
+      ]);
     }
-}
+  };
 
-function toggleTodo(event) {
+  function toggleTodo(event) {
     const todoId = parseInt(event.target.dataset.vnRitem);
     const todos = $getState("todos");
-    
-    $setStore("todos", todos.map(todo => 
-        todo.id === todoId 
-            ? { ...todo, completed: !todo.completed }
-            : todo
-    ));
-}
+
+    $setStore(
+      "todos",
+      todos.map((todo) =>
+        todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  }
 </script>
 ```
 
 ### Theme Switcher with Persistence
+
 ```html
 <div data-vn-class="dark: {themeStore}.isDark">
-    <button onclick="toggleTheme()">Toggle Theme</button>
+  <button onclick="toggleTheme()">Toggle Theme</button>
 </div>
 
 <script>
-window.onload = function() {
+  window.onload = function () {
     // Initialize theme preference
     if (!$getState("themeStore")) {
-        $setStore("themeStore", { isDark: false });
+      $setStore("themeStore", { isDark: false });
     }
-}
+  };
 
-function toggleTheme() {
+  function toggleTheme() {
     const theme = $getState("themeStore");
     $setStore("themeStore", { isDark: !theme.isDark });
-}
+  }
 </script>
 ```
 
@@ -162,4 +166,4 @@ We welcome contributions! Here's how you can help:
 
 ## License
 
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License.

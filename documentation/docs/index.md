@@ -33,21 +33,22 @@ Create your first reactive component:
 </div>
 
 <script>
-window.onload = function() {
-  // Initialize state
-  $setState('message', 'Hello, VaneJS!');
+  window.onload = function () {
+    // Initialize state
+    $setState("message", "Hello, VaneJS!");
 
-  // Register event handler
-  $event("updateMessage", () => {
-    $setState('message', 'Hello, World!');
-  });
-}
+    // Register event handler
+    $event("updateMessage", () => {
+      $setState("message", "Hello, World!");
+    });
+  };
 </script>
 ```
 
 ## Core Features
 
 ### State
+
 ```javascript
 // Set state
 $setState("user", { name: "John", age: 30 });
@@ -57,6 +58,7 @@ const user = $getState("user");
 ```
 
 ### Store Management
+
 ```javascript
 // Set persistent store data
 $setStore("userPreferences", { theme: "dark" });
@@ -65,11 +67,10 @@ $setStore("userPreferences", { theme: "dark" });
 ```
 
 ### Event Management
+
 ```html
 <!-- Event binding with dynamic parameters -->
-<button data-vn-on="click:handleClick({user.id}, {user.name})">
-  Click Me
-</button>
+<button data-vn-on="click:handleClick({user.id}, {user.name})">Click Me</button>
 ```
 
 ```javascript
@@ -81,6 +82,7 @@ $event("handleClick", ({ params }) => {
 ```
 
 ### DOM Bindings
+
 ```html
 <!-- Text binding -->
 <span data-vn-bind="user.name"></span>
@@ -137,4 +139,4 @@ We welcome contributions! Here's how you can help:
 
 ## License
 
-VaneJS is released under the MIT License. 
+VaneJS is released under the MIT License.

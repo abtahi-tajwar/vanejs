@@ -22,13 +22,13 @@ Here's a simple counter example:
 
 <script>
   // Initialize state
-  $setState('counter', { value: 0 });
+  $setState("counter", { value: 0 });
 
   function incrementCounter() {
-    const counter = $getState('counter');
-    $updateState('counter', {
+    const counter = $getState("counter");
+    $updateState("counter", {
       ...counter,
-      value: counter.value + 1
+      value: counter.value + 1,
     });
   }
 </script>
@@ -47,4 +47,4 @@ VaneJS provides several key features:
 
 - Learn about [Core Concepts](/guide/core-concepts)
 - Explore the [API Reference](/api/state-management)
-- Check out [Examples](/examples/basic) 
+- Check out [Examples](/examples/basic)
