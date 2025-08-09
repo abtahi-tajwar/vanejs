@@ -1,8 +1,4 @@
-import { parseEventQuery } from "./helper";
-import { EngineAttributes, EventFunctions, EventTargets, appStates, appStores } from "./constants";
-import { makeAttr } from "./constants";
-import { renderBinds } from "./renderers/bind";
-import { renderRepeats } from "./renderers/repeat";
+import { EventFunctions, appStates, appStores } from "./constants";
 import { refactorDOM, initStore, updateDOMValues } from "./core";
 
 export function $setState(name, obj) {
@@ -25,15 +21,18 @@ export function $setStore(name, obj) {
 
   const existingStore = sessionStorage.getItem("store");
   if (!existingStore) {
-    sessionStorage.setItem("store", JSON.stringify({
-      [name]: obj
-    }));
+    sessionStorage.setItem(
+      "store",
+      JSON.stringify({
+        [name]: obj,
+      })
+    );
   } else {
     const existing = JSON.parse(existingStore);
     existing[name] = obj;
     sessionStorage.setItem("store", JSON.stringify(existing));
   }
-  updateDOMValues(name)
+  updateDOMValues(name);
 }
 export function $getStore(name) {
   try {
@@ -48,18 +47,15 @@ export function $event(name, func) {
   EventFunctions[name] = func;
 }
 
-
-
 // Execution Layer
-window.addEventListener('load', function() {
+window.addEventListener("load", function () {
   refactorDOM();
   initStore();
   // reRenderDOM(this.document);
 });
 
-
 window.VaneJS = {
   $getState,
   $setState,
-  $deleteState
-}
+  $deleteState,
+};

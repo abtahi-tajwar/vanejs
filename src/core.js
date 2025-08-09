@@ -1,4 +1,4 @@
-import { EngineAttributes, EventTargets, cache } from "./constants";
+import { EngineAttributes, cache } from "./constants";
 import { setNestedLevel } from "./helper";
 import { renderConditions } from "./renderers/condition";
 import { renderBinds } from "./renderers/bind";
@@ -10,8 +10,8 @@ import { $setStore } from ".";
 export const refactorDOM = () => {
   const _cache = document.body.cloneNode(true);
   const selectorString = Object.values(EngineAttributes)
-    .map(attr => `[${attr}]`)
-    .join(', ');
+    .map((attr) => `[${attr}]`)
+    .join(", ");
   const domElements = document.querySelectorAll(selectorString);
   const vnElements = _cache.querySelectorAll(selectorString);
 
@@ -21,14 +21,15 @@ export const refactorDOM = () => {
     const attributes = Array.from(domEl.attributes);
     attributes.forEach((attr, attrIdx) => {
       if (engineAttrList.includes(attr.name)) {
-        const randomId = crypto.getRandomValues(new Uint8Array(8))
-          .map(b => b.toString(36).padStart(2, '0'))
-          .join('')
+        const randomId = crypto
+          .getRandomValues(new Uint8Array(8))
+          .map((b) => b.toString(36).padStart(2, "0"))
+          .join("")
           .slice(0, 8);
 
         // Set the original attribute on cloned node
         domEl.setAttribute(attr.name, attr.value);
-        domEl.setAttribute(makeAttr("target"), idx)
+        domEl.setAttribute(makeAttr("target"), idx);
 
         // Remove original attribute from live DOM
         // domEl.removeAttribute(attr.name);
@@ -36,10 +37,13 @@ export const refactorDOM = () => {
         // Set a new random ID attribute (e.g., data-vn-abc123)
         vnElements[idx].setAttribute(makeAttr("id"), idx);
         if (attr.name === EngineAttributes.REPEAT) {
-          const level = setNestedLevel(vnElements[idx], attr.name, EngineAttributes.NESTED_LEVEL)
-          domEl.setAttribute(EngineAttributes.NESTED_LEVEL, level)
+          const level = setNestedLevel(
+            vnElements[idx],
+            attr.name,
+            EngineAttributes.NESTED_LEVEL
+          );
+          domEl.setAttribute(EngineAttributes.NESTED_LEVEL, level);
         }
-
       }
     });
   });
@@ -51,8 +55,10 @@ export const refactorDOM = () => {
 export function unwrapTemplates(root = document.body) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
     acceptNode(node) {
-      return node.tagName === 'TEMPLATE' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-    }
+      return node.tagName === "TEMPLATE"
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_SKIP;
+    },
   });
 
   const templates = [];
@@ -61,7 +67,7 @@ export function unwrapTemplates(root = document.body) {
     templates.push(node);
   }
 
-  templates.forEach(template => {
+  templates.forEach((template) => {
     const parent = template.parentNode;
     if (!parent) return;
 
@@ -94,10 +100,9 @@ export const updateDOMValues = (stateName) => {
 
   const eventElements = document.querySelectorAll(
     `[${EngineAttributes.EVENT}]`
-  )
+  );
   renderEvents(eventElements);
 };
-
 
 export function reRenderDOM(root, skip = null) {
   const binds = [];
@@ -113,13 +118,13 @@ export function reRenderDOM(root, skip = null) {
           return NodeFilter.FILTER_SKIP;
         }
         return NodeFilter.FILTER_ACCEPT;
-      }
+      },
     },
     false
   );
 
   let node;
-  while (node = walker.nextNode()) {
+  while ((node = walker.nextNode())) {
     if (node.hasAttribute(EngineAttributes.BIND)) {
       binds.push(node);
     } else if (node.hasAttribute(EngineAttributes.CONDITION)) {
@@ -145,17 +150,15 @@ export function initStore() {
 
     const parsedStore = JSON.parse(existingStore);
 
-    if (typeof parsedStore !== 'object' || parsedStore === null) {
+    if (typeof parsedStore !== "object" || parsedStore === null) {
       console.error("Invalid store format in sessionStorage.");
       return;
     }
 
     // Push all keys into appStores and appStates
     for (const [key, value] of Object.entries(parsedStore)) {
-      $setStore(key, value)
+      $setStore(key, value);
     }
-
-
   } catch (e) {
     console.error("Failed to initialize store:", e);
   }

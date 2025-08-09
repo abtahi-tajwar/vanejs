@@ -1,11 +1,13 @@
-import { EngineAttributes } from "./constants";
 export function parseEventQuery(query) {
   const result = [];
 
-  const pairs = query.split(';').map(pair => pair.trim()).filter(Boolean);
+  const pairs = query
+    .split(";")
+    .map((pair) => pair.trim())
+    .filter(Boolean);
 
   for (const pair of pairs) {
-    const [event, funcCall] = pair.split(':');
+    const [event, funcCall] = pair.split(":");
     if (!event || !funcCall) continue;
 
     const match = funcCall.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\((.*)\)$/);
@@ -15,9 +17,9 @@ export function parseEventQuery(query) {
     const paramString = match[2].trim();
 
     const params = [];
-    let current = '';
+    let current = "";
     let inString = false;
-    let quoteChar = '';
+    let quoteChar = "";
 
     for (let i = 0; i < paramString.length; i++) {
       const char = paramString[i];
@@ -28,13 +30,13 @@ export function parseEventQuery(query) {
         }
         current += char;
       } else {
-        if (char === '\'' || char === '"') {
+        if (char === "'" || char === '"') {
           inString = true;
           quoteChar = char;
           current += char;
-        } else if (char === ',') {
+        } else if (char === ",") {
           params.push(cleanParam(current.trim()));
-          current = '';
+          current = "";
         } else {
           current += char;
         }
@@ -48,7 +50,7 @@ export function parseEventQuery(query) {
     result.push({
       event: event.trim(),
       funcName: funcName,
-      params: params
+      params: params,
     });
   }
 
@@ -56,12 +58,15 @@ export function parseEventQuery(query) {
 
   function cleanParam(str) {
     // Trim quotes if they exist
-    if ((str.startsWith("'") && str.endsWith("'")) || (str.startsWith('"') && str.endsWith('"'))) {
+    if (
+      (str.startsWith("'") && str.endsWith("'")) ||
+      (str.startsWith('"') && str.endsWith('"'))
+    ) {
       return str.slice(1, -1);
     }
 
     // Try converting to number if it's a pure number
-    if (!isNaN(str) && str.trim() !== '') {
+    if (!isNaN(str) && str.trim() !== "") {
       return Number(str);
     }
 
@@ -70,8 +75,11 @@ export function parseEventQuery(query) {
   }
 }
 
-export function setNestedLevel(node, repeatAttr = 'data-repeat', levelAttr = 'data-repeat-level') {
-
+export function setNestedLevel(
+  node,
+  repeatAttr = "data-repeat",
+  levelAttr = "data-repeat-level"
+) {
   let parent = node.parentElement;
   let level = 0;
 
@@ -94,30 +102,29 @@ export function evaluateCondition(expression, state) {
         const value = getValueByPath(state, path.trim());
 
         // If value is string, wrap with quotes
-        if (typeof value === 'string') {
+        if (typeof value === "string") {
           return `'${value}'`;
-        } else if (typeof value === 'object') {
+        } else if (typeof value === "object") {
           return JSON.stringify(value); // or throw error
         } else {
           return value;
         }
       });
 
-
       return Function(`return (${populatedExpr});`)();
     } catch (e) {
       console.warn("Failed to evaluate condition:", expression, e);
       return false;
     }
-
   }
-};
+}
 
 export function generateRandomID(length = 10) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=";
   const array = new Uint8Array(length);
   crypto.getRandomValues(array);
-  return Array.from(array, x => chars[x % chars.length]).join('');
+  return Array.from(array, (x) => chars[x % chars.length]).join("");
 }
 
 export function removeCurlyBraces(str) {
@@ -131,8 +138,8 @@ export function removeCurlyBraces(str) {
 }
 
 export function getValueByPath(obj, path) {
-  const normalizedPath = path.replace(/\[(\w+)\]/g, '.$1'); // arr[2] -> arr.2
-  const keys = normalizedPath.split('.');
+  const normalizedPath = path.replace(/\[(\w+)\]/g, ".$1"); // arr[2] -> arr.2
+  const keys = normalizedPath.split(".");
   let current = obj;
 
   for (let key of keys) {
@@ -143,5 +150,3 @@ export function getValueByPath(obj, path) {
   }
   return current;
 }
-
-

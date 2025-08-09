@@ -1,1 +1,1 @@
-export let prefix = 'vn'; // or '' for no prefix
+export let prefix = "vn"; // or '' for no prefix
