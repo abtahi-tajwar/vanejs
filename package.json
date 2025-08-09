@@ -1,24 +1,17 @@
 {
-  "name": "src",
+  "name": "vanejs",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "build:module": "webpack --config webpack.config.module.js",
-    "build:umd": "webpack --config webpack.config.umd.js",
-    "build": "npm run build:module && npm run build:umd",
-    "dev": "webpack --mode development --watch",
-    "dev:module": "webpack --config webpack.config.module.js --mode development --watch",
-    "dev:umd": "webpack --config webpack.config.umd.js --mode development --watch"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@babel/core": "^7.27.4",
-    "@babel/preset-env": "^7.27.2",
-    "babel-loader": "^10.0.0",
-    "webpack": "^5.99.9",
-    "webpack-cli": "^6.0.1"
+    "vite": "^7.1.1"
   }
 }
