@@ -83,7 +83,7 @@ export const updateDOMValues = (stateName) => {
   renderConditions(conditionals);
 
   const elements = document.querySelectorAll(
-    `[${EngineAttributes.BIND}^="${stateName}."]`
+    `[${EngineAttributes.BIND}^="${stateName}"]`
   );
   renderBinds(elements);
 
