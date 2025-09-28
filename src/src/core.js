@@ -6,6 +6,7 @@ import { renderRepeats } from "./renderers/repeat";
 import { renderEvents } from "./renderers/event";
 import { makeAttr } from "./utils";
 import { $setStore } from ".";
+import { renderAttributeBinds } from "./renderers/attributeBinds";
 
 export const refactorDOM = () => {
   const _cache = document.body.cloneNode(true);
@@ -86,6 +87,11 @@ export const updateDOMValues = (stateName) => {
     `[${EngineAttributes.BIND}^="${stateName}"]`
   );
   renderBinds(elements);
+
+  const attrBinds = document.querySelectorAll(
+    `[${EngineAttributes.ATTRIBUTE_BIND}]`
+  );
+  renderAttributeBinds(attrBinds);
 
   const repeatElements = document.querySelectorAll(
     `[${EngineAttributes.REPEAT}^="${stateName}."]`

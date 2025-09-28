@@ -8,8 +8,8 @@ window.onload = function() {
     name: "Abtahi",
     bio: "My abtahi name",
     skills: [
-      { label: "Web Dev", tags: ["html", "css"] },
-      { label: "Chorom dev", tags: ["react", "svelte"] }
+      { label: "Web Dev", tags: ["html", "css"], url: 'https://linkedin.com/' },
+      { label: "Chorom dev", tags: ["react", "svelte"], url: 'https://facebook.com/' }
     ],
     education: [
       { label: "Niagara University" },
@@ -18,6 +18,7 @@ window.onload = function() {
     ]
   })
   $setState("testname", { label: "something" })
+  $setState("testhref", "https://linkedin.com/")
   $setStore("mystore", { name: "StoreValue" })
   $setState("appState", "loading");;
   $setState("theme", "light")

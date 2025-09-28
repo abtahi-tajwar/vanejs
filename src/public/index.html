@@ -63,6 +63,7 @@
 <body>
   <button data-vn-on="click:testEFunc('something', {user.name}); mouseover:testDBLFunc({user.bio})">Test Event</button>
   <h1 data-vn-bind="user.name">Page</h1>
+  <a data-vn-bind-attr="href=testhref">Link to linkedin</a>
   <input type="text" id="storename-input" placeholder="Enter username">
   <a href="about.html">About page</a>
   <input id="inpt" />
@@ -88,6 +89,7 @@
 
   <div data-vn-repeat="user.skills as skill">
     <li data-vn-ritem="{skill}.label"></li><span data-vn-bind="user.name">Abtahi</span>
+    <a data-vn-rattr="href={skill}.url">SkillUrl</a>
     <div>
       <div style="background-color: red;">
         <span data-vn-bind="user.name"></span>

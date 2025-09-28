@@ -3,6 +3,7 @@ import { getValueByPath } from '../helper'
 import { appStates, appStores, cache } from "../constants";
 import { getTargetDOM } from "../utils";
 import { reRenderDOM } from "../core";
+import { renderAttributeBinds } from "./attributeBinds";
 
 export function renderRepeats(elements, parentPointer = null, parentPointerPath = null, level = 0) {
   elements.forEach(el => {
@@ -39,6 +40,7 @@ export function renderRepeats(elements, parentPointer = null, parentPointerPath 
       // reRenderDOM(el.children, EngineAttributes.REPEAT);
       reRenderDOM(el, EngineAttributes.REPEAT);
       const rItems = el.querySelectorAll(`[${EngineAttributes.REPEAT_ITEM}]`);
+      const rAttrs = el.querySelectorAll(`[${EngineAttributes.REPEAT_ATTRIBUTE}]`);
       let alreadyAddedTargets = [];
 
       rItems.forEach(item => {
@@ -56,6 +58,23 @@ export function renderRepeats(elements, parentPointer = null, parentPointerPath 
         item.innerText = value;
 
       })
+
+      rAttrs.forEach(item => {
+        if (!item.getAttribute(EngineAttributes.REPEAT_ATTRIBUTE).includes(`{${pointer}}`)) return;
+        const target = item.getAttribute(EngineAttributes.TARGET);
+        if (alreadyAddedTargets.includes(target)) {
+          item.parentNode.removeChild(item);
+          return;
+        } else {
+          alreadyAddedTargets.push(target);
+        }
+        let attrStr = item.getAttribute(EngineAttributes.REPEAT_ATTRIBUTE);
+        if (!attrStr) return;
+        const absolutepath = attrStr.replace(`{${pointer}}`, `${path}[${idx}]`)
+        item.setAttribute(EngineAttributes.ATTRIBUTE_BIND, absolutepath);
+        renderAttributeBinds([item]);
+      })
+
       resultHTML += el.innerHTML
     })
     el.innerHTML = resultHTML;
