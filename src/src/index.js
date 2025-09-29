@@ -3,7 +3,7 @@ import { EngineAttributes, EventFunctions, EventTargets, appStates, appStores } 
 import { makeAttr } from "./constants";
 import { renderBinds } from "./renderers/bind";
 import { renderRepeats } from "./renderers/repeat";
-import { refactorDOM, initStore, updateDOMValues } from "./core";
+import { refactorDOM, initStore, updateDOMValues, reRenderDOM } from "./core";
 
 export function $setState(name, obj) {
   appStates[name] = obj;
@@ -48,7 +48,9 @@ export function $event(name, func) {
   EventFunctions[name] = func;
 }
 
-
+export function $refreshDOM(root) {
+  reRenderDOM(root);
+}
 
 // Execution Layer
 window.addEventListener('load', function() {

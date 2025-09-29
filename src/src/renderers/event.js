@@ -1,6 +1,7 @@
 import { EngineAttributes, EventTargets, appStates } from "../constants";
 import { generateRandomID } from "../helper";
 import { parseEventQuery, removeCurlyBraces, getValueByPath } from "../helper";
+import { EventFunctions } from "../constants";
 
 export function renderEvents(elements) {
   elements.forEach(el => {

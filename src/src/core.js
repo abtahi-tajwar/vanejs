@@ -84,7 +84,7 @@ export const updateDOMValues = (stateName) => {
   renderConditions(conditionals);
 
   const elements = document.querySelectorAll(
-    `[${EngineAttributes.BIND}^="${stateName}"]`
+    `[${EngineAttributes.BIND}*="${stateName}"]`
   );
   renderBinds(elements);
 
@@ -109,6 +109,7 @@ export function reRenderDOM(root, skip = null) {
   const binds = [];
   const conditions = [];
   const repeats = [];
+  const attributeBinds = [];
 
   const walker = document.createTreeWalker(
     root,
@@ -132,12 +133,15 @@ export function reRenderDOM(root, skip = null) {
       conditions.push(node);
     } else if (node.hasAttribute(EngineAttributes.REPEAT)) {
       repeats.push(node);
+    } else if (node.hasAttribute(EngineAttributes.ATTRIBUTE_BIND)) {
+      attributeBinds.push(node);
     }
   }
 
   if (conditions.length) renderConditions(conditions);
   if (binds.length) renderBinds(binds);
   if (repeats.length) renderRepeats(repeats);
+  if (attributeBinds.length) renderAttributeBinds(attributeBinds);
 }
 
 export function initStore() {
