@@ -1,84 +1,74 @@
-import { EngineAttributes } from "../constants";
-import { getValueByPath } from '../helper'
-import { appStates, appStores, cache } from "../constants";
+import { EngineAttributes, appStates, cache } from "../constants";
+import { getValueByPath } from "../helper";
 import { getTargetDOM } from "../utils";
 import { reRenderDOM } from "../core";
 import { renderAttributeBinds } from "./attributeBinds";
 
 export function renderRepeats(elements, parentPointer = null, parentPointerPath = null, level = 0) {
-  elements.forEach(el => {
-    const eLevel = el.getAttribute(`${EngineAttributes.NESTED_LEVEL}`)
-    if (parseInt(eLevel) != level) {
-      return;
+  elements.forEach((el) => {
+    const eLevel = el.getAttribute(`${EngineAttributes.NESTED_LEVEL}`);
+    if (parseInt(eLevel) !== level) return;
+
+    let query = el.getAttribute(`${EngineAttributes.REPEAT}`);
+    const [rawPath, , pointer] = query.split(" ");
+    if (!rawPath || !pointer) throw new Error("data-repeat format error, use data-repeat=\"state.items as item\"");
+
+    if (parentPointer && parentPointerPath && rawPath.includes(`{${parentPointer}}`)) {
+      query = query.replace(`{${parentPointer}}`, `${parentPointerPath}`);
     }
-    const query = el.getAttribute(`${EngineAttributes.REPEAT}`)
-    let [path, _, pointer] = query.split(" ");
-    if (!path || !pointer) throw new Error(`data-repeat format error at ${state}, please write format like data-repeat="state.example in item"`)
-    if (parentPointer && parentPointerPath && path.includes(`{${parentPointer}}`)) {
-      path = path.replace(`{${parentPointer}}`, `${parentPointerPath}`)
-    }
+    const path = query.split(" ")[0];
+
     const stateValue = getValueByPath(appStates, path);
-    if (!Array.isArray(stateValue)) throw new Error("data-repeat state is not a valid array, data-repeat only accepts array")
-    const cacheTarget = el.getAttribute(`${EngineAttributes.TARGET}`)
-    const cacheDOM = getTargetDOM(cache.template, cacheTarget)
+    if (!Array.isArray(stateValue)) throw new Error("data-repeat only accepts arrays");
 
-    if (level === 0) {
-      el.innerHTML = cacheDOM.innerHTML;
-      el.querySelectorAll(`[${EngineAttributes.ID}]`).forEach(item => {
-        const id = item.getAttribute(EngineAttributes.ID);
-        item.setAttribute(EngineAttributes.TARGET, id);
-        item.removeAttribute(EngineAttributes.ID)
-      })
-    }
+    const cacheTarget = el.getAttribute(`${EngineAttributes.TARGET}`);
+    const cacheDOM = getTargetDOM(cache.template, cacheTarget);
 
-    let resultHTML = ''
+    let resultHTML = "";
+
     stateValue.forEach((val, idx) => {
-      const nestedRepeats = el.querySelectorAll(`[${EngineAttributes.REPEAT}]`)
-      if (nestedRepeats.length) renderRepeats(nestedRepeats, pointer, `${path}[${idx}]`, level + 1)
-      const cacheDOMClone = cacheDOM.cloneNode(true)
+      // work on a per-item clone
+      const instance = cacheDOM.cloneNode(true);
 
-      // reRenderDOM(el.children, EngineAttributes.REPEAT);
-      reRenderDOM(el, EngineAttributes.REPEAT);
-      const rItems = el.querySelectorAll(`[${EngineAttributes.REPEAT_ITEM}]`);
-      const rAttrs = el.querySelectorAll(`[${EngineAttributes.REPEAT_ATTRIBUTE}]`);
-      let alreadyAddedTargets = [];
+      // convert cached IDs to TARGETs
+      instance.querySelectorAll(`[${EngineAttributes.ID}]`).forEach((node) => {
+        const id = node.getAttribute(EngineAttributes.ID);
+        node.setAttribute(EngineAttributes.TARGET, id);
+        node.removeAttribute(EngineAttributes.ID);
+      });
 
-      rItems.forEach(item => {
-        if (!item.getAttribute(EngineAttributes.REPEAT_ITEM).includes(`{${pointer}}`)) return;
-        const target = item.getAttribute(EngineAttributes.TARGET);
-        if (alreadyAddedTargets.includes(target)) {
-          item.parentNode.removeChild(item);
-          return;
-        } else {
-          alreadyAddedTargets.push(target);
-        }
-        let key = item.getAttribute(EngineAttributes.REPEAT_ITEM);
-        const absolutepath = key.replace(`{${pointer}}`, `${path}[${idx}]`)
-        const value = appStates ? getValueByPath(appStates, absolutepath) : null;
+      // nested repeats only inside the instance
+      const nestedRepeats = instance.querySelectorAll(`[${EngineAttributes.REPEAT}]`);
+      if (nestedRepeats.length) {
+        renderRepeats(nestedRepeats, pointer, `${path}[${idx}]`, level + 1);
+      }
+
+      // run binds/attrs in the instance only
+      reRenderDOM(instance, EngineAttributes.REPEAT);
+
+      // fill repeat items
+      const rItems = instance.querySelectorAll(`[${EngineAttributes.REPEAT_ITEM}]`);
+      rItems.forEach((item) => {
+        const spec = item.getAttribute(EngineAttributes.REPEAT_ITEM);
+        if (!spec || !spec.includes(`{${pointer}}`)) return;
+        const absolute = spec.replace(`{${pointer}}`, `${path}[${idx}]`);
+        const value = appStates ? getValueByPath(appStates, absolute) : null;
         item.innerText = value;
+      });
 
-      })
-
-      rAttrs.forEach(item => {
-        if (!item.getAttribute(EngineAttributes.REPEAT_ATTRIBUTE).includes(`{${pointer}}`)) return;
-        const target = item.getAttribute(EngineAttributes.TARGET);
-        if (alreadyAddedTargets.includes(target)) {
-          item.parentNode.removeChild(item);
-          return;
-        } else {
-          alreadyAddedTargets.push(target);
-        }
-        let attrStr = item.getAttribute(EngineAttributes.REPEAT_ATTRIBUTE);
-        if (!attrStr) return;
-        const absolutepath = attrStr.replace(`{${pointer}}`, `${path}[${idx}]`)
-        item.setAttribute(EngineAttributes.ATTRIBUTE_BIND, absolutepath);
+      // fill repeat attribute binds
+      const rAttrs = instance.querySelectorAll(`[${EngineAttributes.REPEAT_ATTRIBUTE}]`);
+      rAttrs.forEach((item) => {
+        const spec = item.getAttribute(EngineAttributes.REPEAT_ATTRIBUTE);
+        if (!spec || !spec.includes(`{${pointer}}`)) return;
+        const absolute = spec.replace(`{${pointer}}`, `${path}[${idx}]`);
+        item.setAttribute(EngineAttributes.ATTRIBUTE_BIND, absolute);
         renderAttributeBinds([item]);
-      })
+      });
 
-      resultHTML += el.innerHTML
-    })
+      resultHTML += instance.innerHTML;
+    });
+
     el.innerHTML = resultHTML;
-
-  })
+  });
 }
-

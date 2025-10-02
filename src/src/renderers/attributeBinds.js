@@ -1,5 +1,5 @@
 import { EngineAttributes } from "../constants";
-import { getValueByPath } from '../helper'
+import { getValueByPath } from "../helper";
 import { appStates } from "../constants";
 
 export const renderAttributeBinds = (elements) => {
@@ -11,7 +11,6 @@ export const renderAttributeBinds = (elements) => {
     const pairs = raw.split(/;|,/).map(s => s.trim()).filter(Boolean);
 
     pairs.forEach((pair) => {
-      // split only on the first '=' to avoid breaking URLs with '='
       const eqIdx = pair.indexOf('=');
       if (eqIdx === -1) {
         console.log("raw", raw);
@@ -20,28 +19,39 @@ export const renderAttributeBinds = (elements) => {
         );
       }
 
-      const attr = pair.slice(0, eqIdx).trim();          // e.g., "href"
-      const path = pair.slice(eqIdx + 1).trim();         // e.g., "data.profile.github"
+      const attr = pair.slice(0, eqIdx).trim();
+      let pathOrTemplate = pair.slice(eqIdx + 1).trim();
 
-      // Resolve the value from appStates using your helper
-      const val = appStates ? getValueByPath(appStates, path) : null;
+      let finalValue = null;
+
+      // Case 1: direct path (no { } )
+      if (!pathOrTemplate.includes("{")) {
+        finalValue = appStates ? getValueByPath(appStates, pathOrTemplate) : null;
+      } 
+      // Case 2: template string with { ... }
+      else {
+        finalValue = pathOrTemplate.replace(/\{([^}]+)\}/g, (_, path) => {
+          const val = appStates ? getValueByPath(appStates, path.trim()) : "";
+          return val == null ? "" : String(val);
+        });
+      }
 
       // Handle null/undefined/false by removing the attribute
-      if (val === null || val === undefined || val === false) {
+      if (finalValue === null || finalValue === undefined || finalValue === false) {
         el.removeAttribute(attr);
         return;
       }
 
-      // Boolean attributes (e.g., disabled, required)
-      // If val is true => set empty attribute; if string/number => set as string
-      const booleanAttrs = new Set(['disabled', 'required', 'readonly', 'checked', 'hidden', 'autofocus']);
-      if (booleanAttrs.has(attr) && (val === true || val === 'true')) {
-        el.setAttribute(attr, '');
+      // Boolean attributes (disabled, required, etc.)
+      const booleanAttrs = new Set([
+        "disabled", "required", "readonly", "checked", "hidden", "autofocus"
+      ]);
+      if (booleanAttrs.has(attr) && (finalValue === true || finalValue === "true")) {
+        el.setAttribute(attr, "");
         return;
       }
 
-      el.setAttribute(attr, String(val));
+      el.setAttribute(attr, String(finalValue));
     });
   });
 };
-
